@@ -162,6 +162,9 @@ public class GameScreen extends ScreenAdapter{
 		tankSprite.setPosition(tankPosition.x, tankPosition.y);
 		tankSprite.draw(batch);
 		
+		turretSprite.setPosition(turretPosition.x, turretPosition.y);
+		turretSprite.draw(batch);
+		
 		//CAMERA MOVE CONTROL
 		if ((Gdx.input.isKeyPressed(Input.Keys.LEFT))) {
 			game.camera.position.x -= 32;
@@ -215,6 +218,18 @@ public class GameScreen extends ScreenAdapter{
 			tankSprite.rotate(-tankTurningSpeed);
 			spriteRotation -= tankTurningSpeed * (1/60.f);
 		}
+		
+		if (Gdx.input.isKeyPressed(Input.Keys.Q)) {
+			System.out.println("A Key pressed");
+			turretSprite.rotate(turretTurningSpeed);
+			spriteRotation2 += turretTurningSpeed * (1/60.f);
+		}
+		
+		if (Gdx.input.isKeyPressed(Input.Keys.E)) {
+			System.out.println("D Key pressed");
+			turretSprite.rotate(-turretTurningSpeed);
+			spriteRotation2 -= turretTurningSpeed * (1/60.f);
+		}
 
 		if (Gdx.input.isKeyPressed(Input.Keys.W)) {
 			System.out.println("W Key pressed");
@@ -227,6 +242,9 @@ public class GameScreen extends ScreenAdapter{
 			
 			tankPosition.x += tankDirection.x;
 			tankPosition.y += tankDirection.y;
+			
+			turretPosition.x = tankPosition.x;
+			turretPosition.y = tankPosition.y;
 		}
 
 		if (Gdx.input.isKeyPressed(Input.Keys.S)) {
@@ -240,6 +258,9 @@ public class GameScreen extends ScreenAdapter{
 			
 			tankPosition.x -= tankDirection.x;
 			tankPosition.y -= tankDirection.y;
+			
+			turretPosition.x = tankPosition.x;
+			turretPosition.y = tankPosition.y;
 		}
 	}
 
