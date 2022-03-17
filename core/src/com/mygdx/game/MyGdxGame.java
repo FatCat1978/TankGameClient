@@ -55,8 +55,15 @@ public class MyGdxGame extends Game {
 		manager = new AssetManager();
 		manager.setLoader(TiledMap.class, new TmxMapLoader());
 		manager.load("Tank_Test_Map.tmx", TiledMap.class);
+		manager.load("RT-76_Body.png", Texture.class);
+		manager.load("RT-76_Turret_Head.png", Texture.class);
+		manager.load("AT82_Body.png", Texture.class);
+		manager.load("AT82_Turret_Head.png", Texture.class);
+		manager.load("MT-1984_Body.png", Texture.class);
+		manager.load("MT-1984_Turret_Head.png", Texture.class);
 		manager.finishLoading();
 		selectedTiledMap = manager.get("Tank_Test_Map.tmx", TiledMap.class);
+		
 		
 		//Gets the properties of the TiledMap
 		MapProperties properties = selectedTiledMap.getProperties();

@@ -8,6 +8,8 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -33,8 +35,6 @@ public class GameScreen extends ScreenAdapter{
 	private ArrayList<Short> cellArrayX;
 	private ArrayList<Short> cellArrayY;
 	
-	//Constructor Method
-	public GameScreen(MyGdxGame game) {
 
 	SpriteBatch batch;
 	Sprite tankSprite;
@@ -100,10 +100,19 @@ public class GameScreen extends ScreenAdapter{
 		turretDamage = turretStats[0];
 		turretTurningSpeed = turretStats[1];
 		
-
 		this.game = game;
-		usedLayerCell = new Cell();
+		loadAssetsNStuff();
 	}
+	
+	public void loadAssetsNStuff(){
+		game.manager.load("RT-76_Body.png", Texture.class);
+		game.manager.load("MT82_Body.png", Texture.class);
+		game.manager.load("MT-1984_Body.png", Texture.class);
+		game.manager.load("RT-76_Turret_Head.png", Texture.class);
+		game.manager.load("MT82_Turret_Head.png", Texture.class);
+		game.manager.load("MT-1984_Turret_Head.png", Texture.class);
+	}
+	
 	@Override
 	public void show() {	
 	}
@@ -116,12 +125,16 @@ public class GameScreen extends ScreenAdapter{
 		//|Method parameters:										   		
 		//|																   		
 		//|What it does		:	Renders/executes everything in the method every frame.
-		//|						Allows for camera movement
+		//|						Allows for camera movement, drawing of the tank, and
+		//|						any movement associated with the tank.
 		//|						
 		//|																	    
 		//|Change log		:	Date		Creator    	Notes			    
 		//|						===========	========   	=============	    
 		//|						FEB 10 2022	J. Smith 	Initial setup   
+		//|						MAR 15 2022 J. Shaddick	Added a tank body
+		//|												with ability to
+		//|												move around
 		//=======================================================================
 		/*
 		timeInSeconds += Gdx.graphics.getDeltaTime();	//timeInSeconds gets added to it's current amount in delta time 
@@ -132,21 +145,16 @@ public class GameScreen extends ScreenAdapter{
 			animateRover();	//Call the animateRover function
 		}
 		*/
+		handlePlayerMovement(delta);
+		batch.begin();
 		Gdx.gl.glClearColor(.5f, .7f, .9f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		game.viewport.update(game.WIDTH, game.HEIGHT);
 		game.camera.update();
 		game.renderer.setView(game.camera);
-
-		game.renderer.render();
-		
-
 		game.manager.load("RT-76_Body.png", Texture.class);
 		game.manager.load("MT82_Body.png", Texture.class);
 		game.manager.load("MT-1984_Body.png", Texture.class);
-		game.manager.load("RT-76_Turret_Head.png", Texture.class);
-		game.manager.load("MT82_Turret_Head.png", Texture.class);
-		game.manager.load("MT-1984_Turret_Head.png", Texture.class);
 		game.renderer.render();
 		
 		//batch.draw(theTank.getTankBodyTexture(), theTank.getTankPositionY(), theTank.getTankPositionX());
@@ -154,21 +162,17 @@ public class GameScreen extends ScreenAdapter{
 		tankSprite.setPosition(tankPosition.x, tankPosition.y);
 		tankSprite.draw(batch);
 		
-		turretSprite.setPosition(turretPosition.x, turretPosition.y);
-		turretSprite.draw(batch);
-		
-
 		//CAMERA MOVE CONTROL
-		if ((Gdx.input.isKeyPressed(Input.Keys.A))) {
+		if ((Gdx.input.isKeyPressed(Input.Keys.LEFT))) {
 			game.camera.position.x -= 32;
 		};
-		if ((Gdx.input.isKeyPressed(Input.Keys.D))) {
+		if ((Gdx.input.isKeyPressed(Input.Keys.RIGHT))) {
 			game.camera.position.x += 32;
 		};
-		if ((Gdx.input.isKeyPressed(Input.Keys.W))) {
+		if ((Gdx.input.isKeyPressed(Input.Keys.UP))) {
 			game.camera.position.y += 32;
 		};
-		if ((Gdx.input.isKeyPressed(Input.Keys.S))) {
+		if ((Gdx.input.isKeyPressed(Input.Keys.DOWN))) {
 			game.camera.position.y -= 32;
 		};
 		
@@ -181,9 +185,9 @@ public class GameScreen extends ScreenAdapter{
 			game.camera.zoom = game.camera.zoom - 0.1f;	//Lower the number the closer the camera
 			cameraZoomValue -= 1;
 		};
+		batch.end();
 	}
 	
-
 	public void handlePlayerMovement(float delta) {
 		//=======================================================================
 		//|Method : handlePlayerMovement()
@@ -204,28 +208,12 @@ public class GameScreen extends ScreenAdapter{
 			System.out.println("A Key pressed");
 			tankSprite.rotate(tankTurningSpeed);
 			spriteRotation += tankTurningSpeed * (1/60.f);
-
-		}
-		
-		if (Gdx.input.isKeyPressed(Input.Keys.Z)) {
-			System.out.println("A Key pressed");
-		
-			turretSprite.rotate(turretTurningSpeed);
-			spriteRotation2 += turretTurningSpeed * (1/60.f);
 		}
 		
 		if (Gdx.input.isKeyPressed(Input.Keys.D)) {
 			System.out.println("D Key pressed");
 			tankSprite.rotate(-tankTurningSpeed);
 			spriteRotation -= tankTurningSpeed * (1/60.f);
-
-		}
-		
-		if (Gdx.input.isKeyPressed(Input.Keys.X)) {
-			System.out.println("D Key pressed");
-			
-			turretSprite.rotate(-turretTurningSpeed);
-			spriteRotation2 -= turretTurningSpeed * (1/60.f);
 		}
 
 		if (Gdx.input.isKeyPressed(Input.Keys.W)) {
@@ -239,9 +227,6 @@ public class GameScreen extends ScreenAdapter{
 			
 			tankPosition.x += tankDirection.x;
 			tankPosition.y += tankDirection.y;
-			
-			turretPosition.x = tankPosition.x;		
-			turretPosition.y = tankPosition.y;
 		}
 
 		if (Gdx.input.isKeyPressed(Input.Keys.S)) {
@@ -255,9 +240,6 @@ public class GameScreen extends ScreenAdapter{
 			
 			tankPosition.x -= tankDirection.x;
 			tankPosition.y -= tankDirection.y;
-			
-			turretPosition.x = tankPosition.x;		
-			turretPosition.y = tankPosition.y;
 		}
 	}
 
