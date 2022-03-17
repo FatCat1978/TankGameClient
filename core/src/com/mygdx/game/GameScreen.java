@@ -8,6 +8,8 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -33,8 +35,6 @@ public class GameScreen extends ScreenAdapter{
 	private ArrayList<Short> cellArrayX;
 	private ArrayList<Short> cellArrayY;
 	
-	//Constructor Method
-	public GameScreen(MyGdxGame game) {
 
 	SpriteBatch batch;
 	Sprite tankSprite;
