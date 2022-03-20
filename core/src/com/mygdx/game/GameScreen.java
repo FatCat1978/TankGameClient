@@ -22,7 +22,7 @@ import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.mygdx.game.TankObject;
 
-public class GameScreen extends ScreenAdapter{
+public class GameScreen extends ScreenAdapter {
 
 	//private short cameraZoomValue = 0;
 	//private MyGdxGame game;
@@ -37,68 +37,18 @@ public class GameScreen extends ScreenAdapter{
 	
 
 	SpriteBatch batch;
-	Sprite tankSprite;
-	Sprite turretSprite;
-	TankObject theTank;
-	TankObject theTurret;
+	Tank theTank;
+	//TurretObject theTurret;
 	private short cameraZoomValue = 0;
 	private MyGdxGame game;
 	private short tankTypeID = 1; //variable responsible for selecting the type of tank the player wishes to use
-	private float[] tankStats; //variable that holds the stats for a specific tank
-	private float tankHealth; //the tank's health
-	private float forwardSpeed; //the tank's forward speed
-	private float reverseSpeed;	//the tank's reverse speed
-	private float tankTurningSpeed; //the speed at which the tank turns
-	private short turretTypeID = 1; //variable responsible for selecting the type of turret the player wishes to use
-	private float[] turretStats; //variable that holds the stats for a specific turret
-	private float turretDamage; //the turret's damage
-	private float turretTurningSpeed; //the speed at which the turret turns
-	
-	private float spriteRotation;
-	private float spriteRotation2;
-	
-	private Vector2 tankPosition = new Vector2();
-	private Vector2 tankDirection = new Vector2();
-	private Vector2 turretPosition = new Vector2();
-	private Vector2 turretDirection = new Vector2();
+	private short tankControlID = 0; //variable that will be used to dictate how the player controls the tank
 	
 	//Constructor Method
 	public GameScreen(MyGdxGame game) {
 		batch = new SpriteBatch();
 		
-		theTank = new TankObject(game, (short) tankTypeID);
-		
-		theTank.setTankPosition(455.f, 235.f);
-		
-		theTurret = new TankObject(game, (short) turretTypeID);
-		
-		theTurret.setTurretPosition(455.f, 235.f);
-		
-		tankPosition.x = theTank.getTankPosition().x;
-		tankPosition.y = theTank.getTankPosition().y;
-		
-		turretPosition.x = theTurret.getTurretPosition().x;
-		turretPosition.y = theTurret.getTurretPosition().y;
-		
-		
-		tankSprite = new Sprite(theTank.getTankBodyTexture());
-		tankSprite.setRotation(-90);
-		
-		turretSprite = new Sprite(theTurret.getTurretHeadTexture());
-		turretSprite.setRotation(-90);
-		
-		
-		tankStats = new float[4];
-		tankStats = theTank.getTankStats();
-		tankHealth = tankStats[0];
-		forwardSpeed = tankStats[1];
-		reverseSpeed = tankStats[2];
-		tankTurningSpeed = tankStats[3];
-		
-		turretStats = new float[2];
-		turretStats = theTurret.getTurretStats();
-		turretDamage = turretStats[0];
-		turretTurningSpeed = turretStats[1];
+		theTank = new Tank(game, (short) tankTypeID, (short) tankControlID);
 		
 		this.game = game;
 		loadAssetsNStuff();
@@ -159,11 +109,7 @@ public class GameScreen extends ScreenAdapter{
 		
 		//batch.draw(theTank.getTankBodyTexture(), theTank.getTankPositionY(), theTank.getTankPositionX());
 				
-		tankSprite.setPosition(tankPosition.x, tankPosition.y);
-		tankSprite.draw(batch);
-		
-		turretSprite.setPosition(turretPosition.x, turretPosition.y);
-		turretSprite.draw(batch);
+		theTank.draw(batch);
 		
 		//CAMERA MOVE CONTROL
 		if ((Gdx.input.isKeyPressed(Input.Keys.LEFT))) {
@@ -208,59 +154,27 @@ public class GameScreen extends ScreenAdapter{
 		//=======================================================================
 		//playerInfo MOVEMENT CONTROL
 		if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-			System.out.println("A Key pressed");
-			tankSprite.rotate(tankTurningSpeed);
-			spriteRotation += tankTurningSpeed * (1/60.f);
+			theTank.turnTankLeft(true);
 		}
 		
 		if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-			System.out.println("D Key pressed");
-			tankSprite.rotate(-tankTurningSpeed);
-			spriteRotation -= tankTurningSpeed * (1/60.f);
-		}
-		
-		if (Gdx.input.isKeyPressed(Input.Keys.Q)) {
-			System.out.println("A Key pressed");
-			turretSprite.rotate(turretTurningSpeed);
-			spriteRotation2 += turretTurningSpeed * (1/60.f);
-		}
-		
-		if (Gdx.input.isKeyPressed(Input.Keys.E)) {
-			System.out.println("D Key pressed");
-			turretSprite.rotate(-turretTurningSpeed);
-			spriteRotation2 -= turretTurningSpeed * (1/60.f);
+			theTank.turnTankRight(true);
 		}
 
 		if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-			System.out.println("W Key pressed");
-			float radians = (float) (spriteRotation * (Math.PI / 180.f));
-			tankDirection.x = (float) Math.cos(Math.toDegrees(radians));
-			tankDirection.y = (float) Math.sin(Math.toDegrees(radians));
-			
-			tankDirection.x *= ((1/60.f) * forwardSpeed);
-			tankDirection.y *= ((1/60.f) * forwardSpeed);
-			
-			tankPosition.x += tankDirection.x;
-			tankPosition.y += tankDirection.y;
-			
-			turretPosition.x = tankPosition.x;
-			turretPosition.y = tankPosition.y;
+			theTank.moveTankForward(true);
 		}
 
 		if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-			System.out.println("S Key pressed" + reverseSpeed);
-			float radians = (float) (spriteRotation * (Math.PI / 180.f));
-			tankDirection.x = (float) Math.cos(Math.toDegrees(radians));
-			tankDirection.y = (float) Math.sin(Math.toDegrees(radians));
-			
-			tankDirection.x *= ((1/60.f) * reverseSpeed);
-			tankDirection.y *= ((1/60.f) * reverseSpeed);
-			
-			tankPosition.x -= tankDirection.x;
-			tankPosition.y -= tankDirection.y;
-			
-			turretPosition.x = tankPosition.x;
-			turretPosition.y = tankPosition.y;
+			theTank.moveTankBackward(true);
+		}
+		
+		if (Gdx.input.isKeyPressed(Input.Keys.Q)) {
+			theTank.turnTurretLeft(true);
+		}
+		
+		if (Gdx.input.isKeyPressed(Input.Keys.E)) {
+			theTank.turnTurretRight(true);
 		}
 	}
 
