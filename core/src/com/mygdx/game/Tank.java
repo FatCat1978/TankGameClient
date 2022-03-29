@@ -21,7 +21,7 @@ public class Tank {
 	private float turretAngle;
 	private float[] tankStats; //array that holds stats for the tank
 	private float[] turretStats; //array that holds stats for the turret
-	private ArrayList<Tank> arrayOfTanks; //an arrayList to be used to hold tank objects
+	
 	
 	private MyGdxGame game;
 	
@@ -46,7 +46,6 @@ public class Tank {
 		turretPosition = new Vector2(); //instantiates a new vector2 variable for tracking the turret's angle and keeping the turret's location equal to that of the tank
 		tankStats = theTankBody.getTankStats(); //sets the array of stats for the tank from the TankObject class to the tankStats array here
 		turretStats = theTurret.getTurretStats(); //sets the array of stats for the tank from the TurretObject class to the turretStats array here
-		arrayOfTanks = new ArrayList<Tank>(); //instantiates an arraylist that will hold all the tanks in the game
 		//conditionals that will be used to set the enum variable for available controls
 		if (controlType == 0) {
 			//control over both tank body and turret
