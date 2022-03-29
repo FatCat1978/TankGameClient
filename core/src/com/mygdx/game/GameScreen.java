@@ -106,10 +106,9 @@ public class GameScreen extends ScreenAdapter {
 		game.manager.load("MT82_Body.png", Texture.class);
 		game.manager.load("MT-1984_Body.png", Texture.class);
 		game.renderer.render();
-		
-		//batch.draw(theTank.getTankBodyTexture(), theTank.getTankPositionY(), theTank.getTankPositionX());
 				
 		theTank.draw(batch);
+		
 		
 		//CAMERA MOVE CONTROL
 		if ((Gdx.input.isKeyPressed(Input.Keys.LEFT))) {
