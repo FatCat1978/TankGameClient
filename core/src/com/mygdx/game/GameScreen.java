@@ -17,6 +17,7 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
@@ -44,9 +45,13 @@ public class GameScreen extends ScreenAdapter {
 	private short tankTypeID = 1; //variable responsible for selecting the type of tank the player wishes to use
 	private short tankControlID = 0; //variable that will be used to dictate how the player controls the tank
 	
+	private World world;
+	
 	//Constructor Method
 	public GameScreen(MyGdxGame game) {
 		batch = new SpriteBatch();
+		
+		world = new World(new Vector2(0,0), true);
 		
 		theTank = new Tank(game, (short) tankTypeID, (short) tankControlID);
 		
@@ -183,6 +188,7 @@ public class GameScreen extends ScreenAdapter {
 	
 	@Override
 	public void dispose () {
+		world.dispose();
 		game.manager.dispose();
 	}
 }

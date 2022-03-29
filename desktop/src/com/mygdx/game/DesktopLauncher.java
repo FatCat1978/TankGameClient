@@ -8,7 +8,6 @@ import com.mygdx.game.MyGdxGame;
 public class DesktopLauncher {
 	public static void main (String[] arg) {
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
-		config.setTitle("Tank Game");
 		config.setForegroundFPS(60);
 		new Lwjgl3Application(new MyGdxGame(), config);
 	}
