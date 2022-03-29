@@ -7,40 +7,63 @@ import com.badlogic.gdx.math.Vector2;
 
 public class TurretObject {
 	
-	private Texture turretHead;
-	private Sprite turretSprite;
-	private enum turretTypes { LIGHT, MEDIUM, HEAVY };
-	private turretTypes turretType;
-	private float turretPositionX;
-	private float turretPositionY;
-	private float turretAngle;
-	private float[] turretStats;
+	private Texture turretHead; //Texture for the turret
+	private enum turretTypes { LIGHT, MEDIUM, HEAVY }; //enum that contains the turret classes
+	private turretTypes turretType; //enum variable that will be used to indicate the class of turret to use
+	private float[] turretStats; //array of turret stats
 	
 	private MyGdxGame game;
 	
 	public TurretObject(MyGdxGame game, short ID) {
-		setTurretStats(ID);
-		this.game = game;
+		/*
+		 * Constructor Name:				TurretObject
+		 * 	
+		 * Constructor Parameters:			MyGdxGame game, short ID
+		 * 
+		 * Synopsis:						This constructor serves as the template
+		 * 									from which the turret will be created
+		 * 
+		 * Modifications:					Date:		Name:			Modifications:
+		 * 									03/16/22	Jonathan Gregan	Initial Setup
+		 * 									03/20/22	Jared Shaddick	Changed Code to Match
+		 * 																the Rest of the Tank Related
+		 * 																Code
+		 */
+		setTurretStats(ID); //calls the method setTurretStats using the parameter passed from the GameScreen class 
+		this.game = game; //ensures that all data from the class MyGdxGame is identical to the data of the same type here
+		//conditional statement used to determine the enum and texture to use for the turret
 		if (ID == 1) {
+			//light tank turret
 			turretType = turretType.LIGHT;
 			turretHead = game.manager.get("RT-76_Turret_Head.png", Texture.class);
 		}
 		if (ID == 2) {
+			//medium tank turret
 			turretType = turretType.MEDIUM;
 			turretHead = game.manager.get("MT-1984_Turret_Head.png", Texture.class);
 		}
 		if (ID == 3) {
+			//heavy tank turret
 			turretType = turretType.HEAVY;
 			turretHead = game.manager.get("AT82_Turret_Head.png", Texture.class);
 		}
 	}
 
 	public Texture getTurretHeadTexture() {
+		/*
+		 * Method Name:					getTurretHeadTexture
+		 * 
+		 * Method Parameters:			None
+		 * 
+		 * Method Return:				Texture
+		 * 
+		 * Synopsis:					This method returns the texture
+		 * 								associated with the chosen turret
+		 * 
+		 * Modifications:				Date:		Name:			Modifications:
+		 * 								03/16/22	Jonathan Gregan	Initial Setup
+		 */
 		return turretHead;
-	}
-	
-	public void getTankPosition() {
-		
 	}
 	
 	private void setTurretStats(short turretID) {

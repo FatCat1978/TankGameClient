@@ -8,14 +8,11 @@ import com.badlogic.gdx.math.Vector2;
 
 public class TankObject  {
 
-	private enum tankTypes { LIGHT, MEDIUM, HEAVY };
-	private tankTypes tankType;
-	private float[] tankStats;
+	private enum tankTypes { LIGHT, MEDIUM, HEAVY }; //an enum containing tank classes
+	private tankTypes tankType; //a variable for the enum tankTypes that will be used to share the type of tank being used
+	private float[] tankStats; //array of tank stats
 	private MyGdxGame game;
-	private Texture tankBody;
-	
-	
-	private Sprite tankSprite;
+	private Texture tankBody; //a texture for the tank's body
 	
 	private void setTankStats(short tankID) {
 		//This method had to be rebuilt due to loss of data during an operation with github on 12/03/22
@@ -59,17 +56,33 @@ public class TankObject  {
 	}
 	
 	TankObject(MyGdxGame game, short ID) {
-		setTankStats(ID);
-		this.game = game;
+		/*
+		 * Constructor:					TankObject
+		 * 
+		 * Constructor Parameters:		MyGdxGame game, short ID
+		 * 
+		 * Synopsis:					This constructor serves as the template
+		 * 								from which the tank's body will be created
+		 * 
+		 * Modifications:				Date:		Name:			Modifications:
+		 * 								03/14/22	Jared Shaddick	Initial Setup
+		 * 								03/20/22	Jared Shaddick	Moved to a Separate Class
+		 */
+		setTankStats(ID); //calls the method setTankStats using the TankID parameter passed from the GameScreen class
+		this.game = game; //ensures that all data from the class MyGdxGame is identical to the data of the same type here
+		//conditional statement that determines the tank class and texture for the tank body
 		if (ID == 1) {
+			//light tank
 			tankType = tankType.LIGHT;
 			tankBody = game.manager.get("RT-76_Body.png", Texture.class);
 		}
 		if (ID == 2) {
+			//medium tank
 			tankType = tankType.MEDIUM;
 			tankBody = game.manager.get("MT-1984_Body.png", Texture.class);
 		}
 		if (ID == 3) {
+			//heavy tank
 			tankType = tankType.HEAVY;
 			tankBody = game.manager.get("AT82_Body.png", Texture.class);
 		}
@@ -110,6 +123,19 @@ public class TankObject  {
 	}
 	
 	public Texture getTankBodyTexture() {
+		/*
+		 * Method Name:					getTankBodyTexture
+		 * 
+		 * Method Parameters:			None
+		 * 
+		 * Method Return:				Texture
+		 * 
+		 * Synopsis:					This method returns the texture
+		 * 								associated with the chosen tank
+		 * 
+		 * Modifications:				Date:		Name:			Modification:
+		 * 								03/16/22	Jared Shaddick	Initial Setup
+		 */
 		return tankBody;
 	}
 	

@@ -8,54 +8,72 @@ import com.badlogic.gdx.math.Vector2;
 
 public class Tank {
 
-	private enum tankControl { ALL , TANK, TURRET };
-	private tankControl controlSetting;
-	private MyGdxGame game;
-	private TurretObject theTurret;
-	private TankObject theTankBody;
-	private Sprite tankBodySprite;
-	private Sprite turretSprite;
-	private Vector2 tankPosition;
-	private Vector2 tankDirection;
-	private Vector2 turretPosition;
+	private enum tankControl { ALL , TANK, TURRET }; //an enum that holds values for the control types for a player
+	private tankControl controlSetting; //a variable for an enum that will be assigned a value from the enum dealing with control types
+	private TurretObject theTurret; //an uninstantiated instance of the TurretObject class
+	private TankObject theTankBody; //an uninstantiated instance of the TankObject class
+	private Sprite tankBodySprite; //a sprite variable that will be the visual representation of the tank
+	private Sprite turretSprite; //a sprite variable that will be the visual representation of the turret
+	private Vector2 tankPosition; //a vector2 variable that is responsible for the position of the tank body an by extension the turret
+	private Vector2 tankDirection; //a vector2 variable that is responsible for the direction the tank body should be headed in
+	private Vector2 turretPosition; //a vector2 variable that is repsonsible for the turret's position (should be the same x and y as the tank, rotation is different)
 	private float tankAngle;
 	private float turretAngle;
-	private float[] tankStats;
-	private float[] turretStats;
-	private ArrayList<Tank> arrayOfTanks;
+	private float[] tankStats; //array that holds stats for the tank
+	private float[] turretStats; //array that holds stats for the turret
+	private ArrayList<Tank> arrayOfTanks; //an arrayList to be used to hold tank objects
+	
+	private MyGdxGame game;
 	
 	public Tank(MyGdxGame game, short ID, short controlType) {
-		theTankBody = new TankObject(game, ID);
-		theTurret = new TurretObject(game, ID);
-		tankPosition = new Vector2();
-		tankDirection = new Vector2();
-		turretPosition = new Vector2();
-		tankStats = theTankBody.getTankStats();
-		turretStats = theTurret.getTurretStats();
-		arrayOfTanks = new ArrayList<Tank>();
+		/*
+		 * Constructor Name:					Tank
+		 * 
+		 * Constructor Parameters:				MyGdxGame game, short ID, short controlType
+		 * 
+		 * Synopsis:							This constructor is the unifying point for the tank body and turret
+		 * 										this will only be created once from the GameScreen class. This constructor
+		 * 										must never be used for objects that are dynamically created as a tank will only
+		 * 										ever be created once and this constructor will never be instantiated again
+		 * 
+		 * Modifications:						Date:		Name:			Modifications:
+		 * 										03/20/22	Jared Shaddick	Initial Setup
+		 */
+		theTankBody = new TankObject(game, ID); //instantiates a new tank(body)Object
+		theTurret = new TurretObject(game, ID); //instantiates a new turretObject
+		tankPosition = new Vector2(); //instantiates a new vector2 variable for traking the position of the tank body
+		tankDirection = new Vector2(); //instantiates a new vector2 variable for tracking the direction in which the tank is moving
+		turretPosition = new Vector2(); //instantiates a new vector2 variable for tracking the turret's angle and keeping the turret's location equal to that of the tank
+		tankStats = theTankBody.getTankStats(); //sets the array of stats for the tank from the TankObject class to the tankStats array here
+		turretStats = theTurret.getTurretStats(); //sets the array of stats for the tank from the TurretObject class to the turretStats array here
+		arrayOfTanks = new ArrayList<Tank>(); //instantiates an arraylist that will hold all the tanks in the game
+		//conditionals that will be used to set the enum variable for available controls
 		if (controlType == 0) {
+			//control over both tank body and turret
 			controlSetting = controlSetting.ALL;
 		}
 		if (controlType == 1) {
+			//control over tank body
 			controlSetting = controlSetting.TANK;
 		}
 		if (controlType == 2) {
+			//control over turret
 			controlSetting = controlSetting.TURRET;
 		}
 		
-		setRandomSpawnLocation();
-		setTurretPosition();
-		setTankAngle(0);
-		setTurretAngle(0);
+		setRandomSpawnLocation(); //method sets a random spawn loaction
+		setTurretPosition(tankPosition.x, tankPosition.y); //method that will ensure that the turret is at that same position as the tank
+		setTankAngle(0); //sets the initial angle of the tank body
+		setTurretAngle(0); //sets the initial angle of the turret body
 		
-		tankBodySprite = new Sprite(theTankBody.getTankBodyTexture());
-		tankBodySprite.setRotation(0);
+		tankBodySprite = new Sprite(theTankBody.getTankBodyTexture()); //instantiates a new sprite for the tank body
+		tankBodySprite.setRotation(0); //ensures that the tank body sprite is displayed at the proper angle
 		
-		turretSprite = new Sprite(theTurret.getTurretHeadTexture());
-		turretSprite.setRotation(0);
+		turretSprite = new Sprite(theTurret.getTurretHeadTexture()); //instantiates a new sprite for the turret body
+		turretSprite.setRotation(0); //ensures that the turret sprite is displayed at the proper angle
 		
-		this.game = game;
-		addTankToArray();
+		this.game = game; //ensures that all data from the class MyGdxGame is identical to the data of the same type here
+		addTankToArray(); //calls the method that adds the tank to an arraylist
 	}
 	
 	private void addTankToArray() {
@@ -63,14 +81,27 @@ public class Tank {
 	}
 	
 	private void setRandomSpawnLocation() {
-		float spawnX = 0;
-		float spawnY = 0;
+		/*
+		 * Method Name:					setRandomSpawnLocation
+		 * 
+		 * Method Parameters:			None
+		 * 
+		 * Method Return:				void
+		 * 
+		 * Synopsis:					This method will place a tank in a random 
+		 * 								location within the bounds of the map
+		 * 
+		 * Modifications:				Date:		Names:			Modifications:
+		 * 								03/20/22	Jared Shaddick	Initial Setup
+		 */
+		float spawnX = 0; //temp variable used to get a random position on the X axis
+		float spawnY = 0; //temp variable used to get a random position on the Y axis
 		
-		spawnX = (float) Math.random() * 1600;
-		spawnY = (float) Math.random() * 1600;
+		spawnX = (float) Math.random() * 1600; //set a random X position within the map's size
+		spawnY = (float) Math.random() * 1600; //set a random Y position within the map's size
 		
-		tankPosition.x = spawnX;
-		tankPosition.y = spawnY;
+		tankPosition.x = spawnX; //set the X position of the actual tank
+		tankPosition.y = spawnY; //set the Y position of the actual tank
 	}
 	
 	private Vector2 getTankPosition() {
@@ -166,7 +197,6 @@ public class Tank {
 			turretSprite.rotate(-turretStats[1]);
 			setTurretAngle(-turretStats[1] * (1/60.f));
 		}
-
 	}
 	
 	public void draw(SpriteBatch batch) {
