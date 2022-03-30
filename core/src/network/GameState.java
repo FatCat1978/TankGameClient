@@ -1,9 +1,13 @@
-package com.mygdx.game;
+package network;
 
+import java.io.*;
+import java.net.*;
 import java.util.HashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import com.mygdx.game.Tank;
 
 public class GameState extends Thread
 {
@@ -22,6 +26,13 @@ public class GameState extends Thread
 	boolean activelyConnected = false;
 	
 	
+	
+	//Server/Client communication stuff
+	private	Socket client;
+	private OutputStream outToServer;
+	private InputStream inFromServer;
+
+	
 	void Draw()
 		{
 			
@@ -39,6 +50,22 @@ public class GameState extends Thread
 	
 	public void run()
 	{
+			
+			//we're making a new connection..
+			try
+			{
+				client = new Socket(serverName, port);
+				outToServer = client.getOutputStream();
+				inFromServer = client.getInputStream();
+			} catch (IOException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			
+			
+			
 			ScheduledExecutorService TickExecutor = Executors.newScheduledThreadPool(1);
 			TickExecutor.scheduleAtFixedRate(TankUpdateRunnable, 0, 1000/desiredTickRate, TimeUnit.MILLISECONDS);
 	}
