@@ -18,12 +18,13 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.mygdx.game.TankObject;
 
-public class GameScreen extends ScreenAdapter{
+public class GameScreen extends ScreenAdapter {
 
 	//private short cameraZoomValue = 0;
 	//private MyGdxGame game;
@@ -38,30 +39,14 @@ public class GameScreen extends ScreenAdapter{
 	
 
 	SpriteBatch batch;
-	Sprite tankSprite;
-	Sprite turretSprite;
-	TankObject theTank;
-	TankObject theTurret;
+	Tank theTank;
+	//TurretObject theTurret;
 	private short cameraZoomValue = 0;
 	private MyGdxGame game;
 	private short tankTypeID = 1; //variable responsible for selecting the type of tank the player wishes to use
-	private float[] tankStats; //variable that holds the stats for a specific tank
-	private float tankHealth; //the tank's health
-	private float forwardSpeed; //the tank's forward speed
-	private float reverseSpeed;	//the tank's reverse speed
-	private float tankTurningSpeed; //the speed at which the tank turns
-	private short turretTypeID = 1; //variable responsible for selecting the type of turret the player wishes to use
-	private float[] turretStats; //variable that holds the stats for a specific turret
-	private float turretDamage; //the turret's damage
-	private float turretTurningSpeed; //the speed at which the turret turns
+	private short tankControlID = 0; //variable that will be used to dictate how the player controls the tank
 	
-	private float spriteRotation;
-	private float spriteRotation2;
-	
-	private Vector2 tankPosition = new Vector2();
-	private Vector2 tankDirection = new Vector2();
-	private Vector2 turretPosition = new Vector2();
-	private Vector2 turretDirection = new Vector2();
+	private World world;
 	
 	private boolean InLobby = true;
 	private boolean InSelect = false;
@@ -84,27 +69,9 @@ public class GameScreen extends ScreenAdapter{
 	public GameScreen(MyGdxGame game) {
 		batch = new SpriteBatch();
 		
-		theTank = new TankObject(game, (short) tankTypeID);
+		world = new World(new Vector2(0,0), true);
 		
-		theTank.setTankPosition(455.f, 235.f);
-		
-		theTurret = new TankObject(game, (short) turretTypeID);
-		
-		theTurret.setTurretPosition(455.f, 235.f);
-		
-		tankPosition.x = theTank.getTankPosition().x;
-		tankPosition.y = theTank.getTankPosition().y;
-		
-		turretPosition.x = theTurret.getTurretPosition().x;
-		turretPosition.y = theTurret.getTurretPosition().y;
-		
-		
-		tankSprite = new Sprite(theTank.getTankBodyTexture());
-		tankSprite.setRotation(-90);
-		
-		turretSprite = new Sprite(theTurret.getTurretHeadTexture());
-		turretSprite.setRotation(-90);
-		
+		theTank = new Tank(game, (short) tankTypeID, (short) tankControlID);
 		
 		tankStats = new float[4];
 		tankStats = theTank.getTankStats();
@@ -120,6 +87,7 @@ public class GameScreen extends ScreenAdapter{
 		
 		TestNumber = 0;
 		
+
 		this.game = game;
 		loadAssetsNStuff();
 	}
@@ -254,10 +222,39 @@ public class GameScreen extends ScreenAdapter{
 		}
 
 		batch.end();
+		handlePlayerMovement(delta);
+		batch.begin();
+		Gdx.gl.glClearColor(.5f, .7f, .9f, 1);
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		game.viewport.update(game.WIDTH, game.HEIGHT);
+		game.camera.update();
+		game.renderer.setView(game.camera);
+		game.manager.load("RT-76_Body.png", Texture.class);
+		game.manager.load("MT82_Body.png", Texture.class);
+		game.manager.load("MT-1984_Body.png", Texture.class);
+		game.renderer.render();
+				
+		theTank.draw(batch);
+		
+		
+		//CAMERA MOVE CONTROL
+		if ((Gdx.input.isKeyPressed(Input.Keys.LEFT))) {
+			game.camera.position.x -= 32;
+		};
+		if ((Gdx.input.isKeyPressed(Input.Keys.RIGHT))) {
+			game.camera.position.x += 32;
+		};
+		if ((Gdx.input.isKeyPressed(Input.Keys.UP))) {
+			game.camera.position.y += 32;
+		};
+		if ((Gdx.input.isKeyPressed(Input.Keys.DOWN))) {
+			game.camera.position.y -= 32;
+		};
 		
 		if ((Gdx.input.isKeyPressed(Input.Keys.ESCAPE))) {
 			System.exit(0);
 		};
+		batch.end();
 	}
 	
 	public void handlePlayerMovement(float delta) {
@@ -312,6 +309,27 @@ public class GameScreen extends ScreenAdapter{
 			
 			tankPosition.x -= tankDirection.x;
 			tankPosition.y -= tankDirection.y;
+			theTank.turnTankLeft(true);
+		}
+		
+		if (Gdx.input.isKeyPressed(Input.Keys.D)) {
+			theTank.turnTankRight(true);
+		}
+
+		if (Gdx.input.isKeyPressed(Input.Keys.W)) {
+			theTank.moveTankForward(true);
+		}
+
+		if (Gdx.input.isKeyPressed(Input.Keys.S)) {
+			theTank.moveTankBackward(true);
+		}
+		
+		if (Gdx.input.isKeyPressed(Input.Keys.Q)) {
+			theTank.turnTurretLeft(true);
+		}
+		
+		if (Gdx.input.isKeyPressed(Input.Keys.E)) {
+			theTank.turnTurretRight(true);
 		}
 	}
 
@@ -406,6 +424,7 @@ public class GameScreen extends ScreenAdapter{
 	
 	@Override
 	public void dispose () {
+		world.dispose();
 		game.manager.dispose();
 	}
 }

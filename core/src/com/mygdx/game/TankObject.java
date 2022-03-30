@@ -1,29 +1,18 @@
 package com.mygdx.game;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 
 
-public class TankObject {
+public class TankObject  {
 
-	private enum tankTypes { LIGHT, MEDIUM, HEAVY };
-	private tankTypes tankType;
-	private float tankPositionX;
-	private float tankPositionY;
-	private Vector2 tankPosition = new Vector2();
-	private float tankAngle;
-	private float[] tankStats;
+	private enum tankTypes { LIGHT, MEDIUM, HEAVY }; //an enum containing tank classes
+	private tankTypes tankType; //a variable for the enum tankTypes that will be used to share the type of tank being used
+	private float[] tankStats; //array of tank stats
 	private MyGdxGame game;
-	private Texture tankBody;
-	private Texture turretHead;
-	
-	private enum turretTypes { LIGHT, MEDIUM, HEAVY };
-	private turretTypes turretType;
-	private float turretPositionX;
-	private float turretPositionY;
-	private Vector2 turretPosition = new Vector2();
-	private float turretAngle;
-	private float[] turretStats;
+	private Texture tankBody; //a texture for the tank's body
 	
 	private void setTankStats(short tankID) {
 		//This method had to be rebuilt due to loss of data during an operation with github on 12/03/22
@@ -67,20 +56,35 @@ public class TankObject {
 	}
 	
 	TankObject(MyGdxGame game, short ID) {
-		setTankStats(ID);
-		setTurretStats(ID);
-		this.game = game;
+		/*
+		 * Constructor:					TankObject
+		 * 
+		 * Constructor Parameters:		MyGdxGame game, short ID
+		 * 
+		 * Synopsis:					This constructor serves as the template
+		 * 								from which the tank's body will be created
+		 * 
+		 * Modifications:				Date:		Name:			Modifications:
+		 * 								03/14/22	Jared Shaddick	Initial Setup
+		 * 								03/20/22	Jared Shaddick	Moved to a Separate Class
+		 */
+		setTankStats(ID); //calls the method setTankStats using the TankID parameter passed from the GameScreen class
+		this.game = game; //ensures that all data from the class MyGdxGame is identical to the data of the same type here
+		//conditional statement that determines the tank class and texture for the tank body
 		if (ID == 1) {
+			//light tank
+			tankType = tankType.LIGHT;
 			tankBody = game.manager.get("RT-76_Body.png", Texture.class);
-			turretHead = game.manager.get("RT-76_Turret_Head.png", Texture.class);
 		}
 		if (ID == 2) {
+			//medium tank
+			tankType = tankType.MEDIUM;
 			tankBody = game.manager.get("MT-1984_Body.png", Texture.class);
-			turretHead = game.manager.get("MT-1984_Turret_Head.png", Texture.class);
 		}
 		if (ID == 3) {
+			//heavy tank
+			tankType = tankType.HEAVY;
 			tankBody = game.manager.get("AT82_Body.png", Texture.class);
-			turretHead = game.manager.get("AT82_Turret_Head.png", Texture.class);
 		}
 	}
 	
@@ -118,116 +122,22 @@ public class TankObject {
 		return tankStats;
 	}
 	
-	public void setTankPosition(float x, float y) {
-		tankPosition.x = x;
-		tankPosition.y = y;
-	}
-	
-	public void setTankAngle(float rotation) {
-		tankAngle += rotation;
-	}
-	
-	public Vector2 getTankPosition() {
-		return tankPosition;
-	}
-	
-	public float getTankAngle() {
-		return tankAngle;
-	}
-	
-	
-	
 	public Texture getTankBodyTexture() {
+		/*
+		 * Method Name:					getTankBodyTexture
+		 * 
+		 * Method Parameters:			None
+		 * 
+		 * Method Return:				Texture
+		 * 
+		 * Synopsis:					This method returns the texture
+		 * 								associated with the chosen tank
+		 * 
+		 * Modifications:				Date:		Name:			Modification:
+		 * 								03/16/22	Jared Shaddick	Initial Setup
+		 */
 		return tankBody;
 	}
 	
-	public Texture getTurretHeadTexture() {
-		return turretHead;
-	}
-	
-	private void setTurretStats(short turretID) {
-		//This method had to be rebuilt due to loss of data during an operation with github on 12/03/22
-		/*
-		 * Method:				setTanksStats
-		 * 	
-		 * Method Parameters:	short tankID
-		 * 
-		 * Method Return:		void
-		 * 
-		 * Synopsis:			This method will determine the turret the player wants
-		 * 						to use based on the parameter passed. It will take the
-		 * 						parameter and use it to apply a preset of stats for the
-		 * 						turret.
-		 * 
-		 * Modifications:		Date:		Name:			Modification:
-		 * 						14/03/22	Jonathan Gregan	Initial Setup
-		 */
-		turretStats = new float[2];
-		if (turretID == 1) {
-			//light tank class
-			turretStats[0] = 200.f; //turret damage
-			turretStats[1] = 2.25f; //turret turning speed
-		}
-		if (turretID == 2) {
-			//medium tank class
-			turretStats[0] = 250.f; //turret damage
-			turretStats[1] = 2.f; //turret turning speed
-		}
-		if (turretID == 3) {
-			//heavy tank class
-			turretStats[0] = 300.f; //turret damage
-			turretStats[1] = 1.5f; //turret turning speed
-		}
-	}
-	
-	public turretTypes getTurretType() {
-		/*
-		 * method:				getTankType
-		 * 
-		 * method Parameters:	none
-		 * 
-		 * method reutrn:		tankTypes
-		 * 
-		 * Synopsis:			Accessor method that allows other classes
-		 * 						to access the data in this method.
-		 * 
-		 * Modifictations:		Date:		Name:			Modification:
-		 * 						13/03/22	Jared Shaddick	Initial Setup
-		 */
-		return turretType;
-	}
-	
-	public float[] getTurretStats() {
-		/*
-		 * method:				getTankStats
-		 * 
-		 * method Parameters:	none
-		 * 
-		 * method reutrn:		short[]
-		 * 
-		 * Synopsis:			Accessor method that allows other classes
-		 * 						to access the data in this method.
-		 * 
-		 * Modifictations:		Date:		Name:			Modification:
-		 * 						13/03/22	Jared Shaddick	Initial Setup
-		 */
-		return turretStats;
-	}
-	
-	public void setTurretPosition(float x, float y) {
-		turretPosition.x = x;
-		turretPosition.y = y;
-	}
-	
-	public void setTurretAngle(float rotation) {
-		turretAngle += rotation;
-	}
-	
-	public Vector2 getTurretPosition() {
-		return turretPosition;
-	}
-	
-	public float getTurretAngle() {
-		return turretAngle;
-	}
+
 }
