@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.google.gson.Gson;
+//import com.google.gson.Gson;
 import com.mygdx.game.MyGdxGame;
 import com.mygdx.game.Tank;
 
@@ -49,11 +49,11 @@ public class GameState extends Thread
 	public static boolean offlineMode = false; //debug!
 	public static boolean serverResponse = false;
 	
-	public static enum allGameStates { IN_LOBBY, IN_SELECT, IN_GAME, WAITING_FOR_SERVER}; //an enum containing tank classes
+	public static enum allGameStates { IN_LOBBY, IN_SELECT, IN_GAME, WAITING_FOR_SERVER}; //every state the lobby can possibly be in 
 	public static allGameStates currentGameState = allGameStates.IN_LOBBY;
 	
-	public static enum allTankPicks {TANK_LARGE,TANK_MEDIUM,TANK_SMALL};
-	public static allTankPicks currentTankPick;
+	public static enum allTankPicks {TANK_LARGE,TANK_MEDIUM,TANK_SMALL,NO_SELECTION};
+	public static allTankPicks currentTankPick = allTankPicks.NO_SELECTION;
 	
 	public static void Draw(SpriteBatch spriteBatch)
 		{
@@ -65,7 +65,7 @@ public class GameState extends Thread
 	
 	void UpdateFromJSON(String Packet)
 		{
-			ClientToServerPacket serverComms = new Gson().fromJson(Packet, ClientToServerPacket.class);
+			ClientToServerPacket serverComms = null; //= new Gson().fromJson(Packet, ClientToServerPacket.class);
 			if(serverComms.packetType == "lobby")
 			{
 				JSONupdateLobby(serverComms.packetInfo);
@@ -79,7 +79,7 @@ public class GameState extends Thread
 	
 	void JSONupdateLobby(String Packet)
 	{
-			LI = new Gson().fromJson(Packet, LobbyInfo.class);
+			//LI = new Gson().fromJson(Packet, LobbyInfo.class);
 	}
 	
 	void JSONupdateGame(String Packet)

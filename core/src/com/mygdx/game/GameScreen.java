@@ -40,10 +40,7 @@ public class GameScreen extends ScreenAdapter {
 	private short tankControlID = 0; //variable that will be used to dictate how the player controls the tank
 	
 	private World world;
-	
-	private boolean AT82_IsSelected;
-	private boolean MT1982_IsSelected;
-	private boolean RT76_IsSelected;
+
 	
 	private int mouseX;
 	private int mouseY;
@@ -153,17 +150,17 @@ public class GameScreen extends ScreenAdapter {
 			batch.draw(game.manager.get("MT-1984_Select_Card.png", Texture.class), 1408 , 632);
 			batch.draw(game.manager.get("RT-76_Select_Card.png", Texture.class), 1902/2-250 ,0);
 			
-			if (AT82_IsSelected) {
+			if (GameState.currentTankPick == GameState.allTankPicks.TANK_LARGE) {
 				DrawSelectBox(0 , 632);
 				Font.draw(batch, "Confirm?", 1920/2 - 150 , 1080/2 + 200);
 			}
 			
-			else if(MT1982_IsSelected) {
+			if(GameState.currentTankPick == GameState.allTankPicks.TANK_MEDIUM) {
 				DrawSelectBox(1408 , 632);
 				Font.draw(batch, "Confirm?", 1920/2 - 150 , 1080/2 + 200);
 			}
 			
-			else if(RT76_IsSelected) {
+			if(GameState.currentTankPick == GameState.allTankPicks.TANK_SMALL) {
 				DrawSelectBox(1902/2-250 ,0);
 				Font.draw(batch, "Confirm?", 1920/2 - 150 , 1080/2 + 200);
 			}
@@ -358,9 +355,8 @@ public class GameScreen extends ScreenAdapter {
 			if (mouseX > 0 && mouseX < 512 && 
 				mouseY > 0 && mouseY < 448) {
 				if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)){
-					AT82_IsSelected = true;
-					MT1982_IsSelected = false;
-					RT76_IsSelected = false;
+					
+					GameState.currentTankPick = GameState.allTankPicks.TANK_LARGE;
 				}
 				DrawSelectBox(0 ,632);
 			}
@@ -368,9 +364,7 @@ public class GameScreen extends ScreenAdapter {
 			if (mouseX > 1408 && mouseX < 1920 && 
 				mouseY > 0 && mouseY < 448) {
 				if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)){
-					AT82_IsSelected = false;
-					MT1982_IsSelected = true;
-					RT76_IsSelected = false;
+					GameState.currentTankPick = GameState.allTankPicks.TANK_MEDIUM;
 				}
 				DrawSelectBox(1408 ,632);
 			}
@@ -378,15 +372,13 @@ public class GameScreen extends ScreenAdapter {
 			if (mouseX > 701 && mouseX < 1213 && 
 				mouseY > 632 && mouseY < 1080) {
 				if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)){
-					AT82_IsSelected = false;
-					MT1982_IsSelected = false;
-					RT76_IsSelected = true;	
+					GameState.currentTankPick = GameState.allTankPicks.TANK_SMALL;
 				}
 				DrawSelectBox(1902/2-250 ,0);
 			}
 			
 			if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT) &&
-			   (AT82_IsSelected || MT1982_IsSelected || RT76_IsSelected) &&
+			   (GameState.currentTankPick != GameState.allTankPicks.NO_SELECTION) &&
 			    mouseX > 800 && mouseX < 1095 && 
 			    mouseY > 340 && mouseY < 400){
 				GameState.currentGameState = GameState.allGameStates.WAITING_FOR_SERVER;
