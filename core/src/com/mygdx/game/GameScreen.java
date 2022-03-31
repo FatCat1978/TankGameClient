@@ -24,22 +24,15 @@ import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.mygdx.game.TankObject;
 
+import network.GameState;
+import tank.Tank2;
+
 public class GameScreen extends ScreenAdapter {
 
-	//private short cameraZoomValue = 0;
-	//private MyGdxGame game;
-	private Cell usedLayerCell;
-	//private PathFindingClass PathFindingInfo;
-	private short animateRoverCounter = -1;
-	
-	private float timeInSeconds = 0f;
-	
-	private ArrayList<Short> cellArrayX;
-	private ArrayList<Short> cellArrayY;
 	
 
 	SpriteBatch batch;
-	Tank theTank;
+	Tank2 theTank;
 	//TurretObject theTurret;
 	private short cameraZoomValue = 0;
 	private MyGdxGame game;
@@ -47,10 +40,6 @@ public class GameScreen extends ScreenAdapter {
 	private short tankControlID = 0; //variable that will be used to dictate how the player controls the tank
 	
 	private World world;
-	
-	private boolean InLobby = true;
-	private boolean InSelect = false;
-	private boolean InGame = false;
 	
 	private boolean AT82_IsSelected;
 	private boolean MT1982_IsSelected;
@@ -65,16 +54,31 @@ public class GameScreen extends ScreenAdapter {
 	private int TestNumber;
 	private int YIncrament = 0;
 	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	GameState gameState; 
+	
+	
+	
 	//Constructor Method
 	public GameScreen(MyGdxGame game) {
 		batch = new SpriteBatch();
 		
 		world = new World(new Vector2(0,0), true);
-		
-		theTank = new Tank(game, (short) tankTypeID, (short) tankControlID);
+	
 		
 		TestNumber = 0;
 		
+		gameState = new GameState();
+		GameState.game = game;
+		gameState.run();
 
 		this.game = game;
 		loadAssetsNStuff();
@@ -126,7 +130,7 @@ public class GameScreen extends ScreenAdapter {
 		*/
 		
 		batch.begin();
-		if (InLobby == true) {
+		if (GameState.currentGameState == GameState.allGameStates.IN_LOBBY){
 			
 			Gdx.gl.glClearColor(50/255f, 70/255f, 90/255f, 1);
 			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -137,11 +141,11 @@ public class GameScreen extends ScreenAdapter {
 			YIncrament += 100;
 			for (TestNumber = 0;TestNumber < TestArray.length; TestNumber++) {
 				Font.draw(batch, TestArray[TestNumber], 25 , 1000 - YIncrament);
-				YIncrament += 100;
+				YIncrament += 30*Gdx.graphics.getDeltaTime();
 			}
 		}
 		
-		if (InSelect == true){
+		if (GameState.currentGameState == GameState.allGameStates.IN_SELECT){
 			Gdx.gl.glClearColor(50/255f, 70/255f, 90/255f, 1);
 			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 			game.viewport.update(game.WIDTH, game.HEIGHT);
@@ -169,7 +173,19 @@ public class GameScreen extends ScreenAdapter {
 		
 		handlePlayerMouse();
 		
-		if (InGame == true) {
+		if(GameState.currentGameState == GameState.allGameStates.WAITING_FOR_SERVER)
+		{
+
+			
+			batch.draw(game.manager.get("Main_Menu_Screen.png", Texture.class), 0 , 0);
+			Font.draw(batch, "Waiting for server!", 1920/2 - 50 , 1080/2);
+			//if(GameState.activelyConnected || GameState.offlineMode == true)
+			//{
+				//GameState.currentGameState = GameState.allGameStates.IN_GAME;
+			//}
+		}
+		
+		if (GameState.currentGameState == GameState.allGameStates.IN_GAME) {
 			handlePlayerMovement(delta);
 			Gdx.gl.glClearColor(100/255f, 100/255f, 100/255f, 1);
 			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -216,10 +232,16 @@ public class GameScreen extends ScreenAdapter {
 			game.manager.load("MT-1984_Body.png", Texture.class);
 			game.renderer.render();
 					
-			theTank.draw(batch);
+			GameState.Draw(batch);
 			
 			
 			//CAMERA MOVE CONTROL
+			
+			game.camera.position.x = GameState.get_client_tank().TankPos.y;
+			game.camera.position.y = GameState.get_client_tank().TankPos.x; //no clue why these need to be inverted? this is actually kinda scary but it
+			//is far too late in the morning for me to hunt for WHY this happens
+			
+			/* old cam controls/
 			if ((Gdx.input.isKeyPressed(Input.Keys.LEFT))) {
 				game.camera.position.x -= 32;
 			};
@@ -232,6 +254,7 @@ public class GameScreen extends ScreenAdapter {
 			if ((Gdx.input.isKeyPressed(Input.Keys.DOWN))) {
 				game.camera.position.y -= 32;
 			};
+			*/
 			
 			if ((Gdx.input.isKeyPressed(Input.Keys.ESCAPE))) {
 				System.exit(0);
@@ -256,8 +279,19 @@ public class GameScreen extends ScreenAdapter {
 		//| Nov 15 2021 J. Smith Initial setup
 		//| Mar 15 2022 J. Smith Adapted code for use
 		//|						 for moving sprites
+		// Mar 31 - Connor Moffatt -  changed as part of tank refactor
 		//=======================================================================
 		//playerInfo MOVEMENT CONTROL
+			boolean W = Gdx.input.isKeyPressed(Input.Keys.W);
+			boolean A = Gdx.input.isKeyPressed(Input.Keys.A);
+			boolean S = Gdx.input.isKeyPressed(Input.Keys.S);
+			boolean D = Gdx.input.isKeyPressed(Input.Keys.D);
+			boolean Q = Gdx.input.isKeyPressed(Input.Keys.Q);
+			boolean E = Gdx.input.isKeyPressed(Input.Keys.E);
+			
+			GameState.do_input(delta, W, A, S, D, Q, E);
+			
+			/*
 		if (Gdx.input.isKeyPressed(Input.Keys.A)) {
 			theTank.turnTankLeft(true);
 		}
@@ -284,7 +318,7 @@ public class GameScreen extends ScreenAdapter {
 		
 		if (Gdx.input.isKeyPressed(Input.Keys.E)) {
 			theTank.turnTurretRight(true);
-		}
+		} */
 	}
 
 	public void handlePlayerMouse() {
@@ -299,6 +333,7 @@ public class GameScreen extends ScreenAdapter {
 		//|Change log : Date Creator Notes
 		//| =========== ======== =============
 		//| MAR 18 2021 J. Smith Initial setup
+			// mar 31 - C.Moffatt, changes from tank refactor
 		//=======================================================================
 		mouseX = Gdx.input.getX();
 		mouseY = Gdx.input.getY();
@@ -306,17 +341,17 @@ public class GameScreen extends ScreenAdapter {
 		//System.out.println("X: " + Gdx.input.getX() +"\nY: " + Gdx.input.getY());
 		
 		if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)){
-			System.out.println("Mouse is clicked\n X: " + Gdx.input.getX() +"\n Y: " + Gdx.input.getY());
-			if (InLobby == true &&
+			//System.out.println("Mouse is clicked\n X: " + Gdx.input.getX() +"\n Y: " + Gdx.input.getY());
+			if (GameState.currentGameState == GameState.allGameStates.IN_LOBBY &&
 				mouseX > 910 && mouseX < 1050 && 
 				mouseY > 540 && mouseY < 600) {
 				
-				InLobby = false;
-				InSelect = true;
+				GameState.currentGameState = GameState.allGameStates.IN_SELECT;
+
 			}
 		}
 		
-		if (InSelect == true) {
+		if (GameState.currentGameState == GameState.allGameStates.IN_SELECT) {
 			if (mouseX > 0 && mouseX < 512 && 
 				mouseY > 0 && mouseY < 448) {
 				if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)){
@@ -351,8 +386,7 @@ public class GameScreen extends ScreenAdapter {
 			   (AT82_IsSelected || MT1982_IsSelected || RT76_IsSelected) &&
 			    mouseX > 800 && mouseX < 1095 && 
 			    mouseY > 340 && mouseY < 400){
-				InSelect = false;
-				InGame = true;
+				GameState.currentGameState = GameState.allGameStates.WAITING_FOR_SERVER;
 			}
 		}
 	}
