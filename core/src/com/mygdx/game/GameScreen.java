@@ -73,18 +73,6 @@ public class GameScreen extends ScreenAdapter {
 		
 		theTank = new Tank(game, (short) tankTypeID, (short) tankControlID);
 		
-		tankStats = new float[4];
-		tankStats = theTank.getTankStats();
-		tankHealth = tankStats[0];
-		forwardSpeed = tankStats[1];
-		reverseSpeed = tankStats[2];
-		tankTurningSpeed = tankStats[3];
-		
-		turretStats = new float[2];
-		turretStats = theTurret.getTurretStats();
-		turretDamage = turretStats[0];
-		turretTurningSpeed = turretStats[1];
-		
 		TestNumber = 0;
 		
 
@@ -139,6 +127,7 @@ public class GameScreen extends ScreenAdapter {
 		
 		batch.begin();
 		if (InLobby == true) {
+			
 			Gdx.gl.glClearColor(50/255f, 70/255f, 90/255f, 1);
 			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 			game.viewport.update(game.WIDTH, game.HEIGHT);
@@ -150,8 +139,6 @@ public class GameScreen extends ScreenAdapter {
 				Font.draw(batch, TestArray[TestNumber], 25 , 1000 - YIncrament);
 				YIncrament += 100;
 			}
-			YIncrament = 0;
-
 		}
 		
 		if (InSelect == true){
@@ -178,7 +165,6 @@ public class GameScreen extends ScreenAdapter {
 			}
 			
 			Font.draw(batch, "Please Select A Tank", 1920/2 - 330 , 1080/2 + 100);
-			
 		}
 		
 		handlePlayerMouse();
@@ -194,8 +180,6 @@ public class GameScreen extends ScreenAdapter {
 			
 			//batch.draw(theTank.getTankBodyTexture(), theTank.getTankPositionY(), theTank.getTankPositionX());
 					
-			tankSprite.setPosition(tankPosition.x, tankPosition.y);
-			tankSprite.draw(batch);
 			
 			//CAMERA MOVE CONTROL
 			if ((Gdx.input.isKeyPressed(Input.Keys.LEFT))) {
@@ -218,42 +202,43 @@ public class GameScreen extends ScreenAdapter {
 			if (Gdx.input.isKeyPressed(Input.Keys.NUMPAD_ADD) && cameraZoomValue != 1) {
 				game.camera.zoom = game.camera.zoom - 0.1f;	//Lower the number the closer the camera
 				cameraZoomValue -= 1;
-			};			
+			};
+			
+			
+			handlePlayerMovement(delta);
+			Gdx.gl.glClearColor(.5f, .7f, .9f, 1);
+			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+			game.viewport.update(game.WIDTH, game.HEIGHT);
+			game.camera.update();
+			game.renderer.setView(game.camera);
+			game.manager.load("RT-76_Body.png", Texture.class);
+			game.manager.load("MT82_Body.png", Texture.class);
+			game.manager.load("MT-1984_Body.png", Texture.class);
+			game.renderer.render();
+					
+			theTank.draw(batch);
+			
+			
+			//CAMERA MOVE CONTROL
+			if ((Gdx.input.isKeyPressed(Input.Keys.LEFT))) {
+				game.camera.position.x -= 32;
+			};
+			if ((Gdx.input.isKeyPressed(Input.Keys.RIGHT))) {
+				game.camera.position.x += 32;
+			};
+			if ((Gdx.input.isKeyPressed(Input.Keys.UP))) {
+				game.camera.position.y += 32;
+			};
+			if ((Gdx.input.isKeyPressed(Input.Keys.DOWN))) {
+				game.camera.position.y -= 32;
+			};
+			
+			if ((Gdx.input.isKeyPressed(Input.Keys.ESCAPE))) {
+				System.exit(0);
+			};
+			
 		}
 
-		batch.end();
-		handlePlayerMovement(delta);
-		batch.begin();
-		Gdx.gl.glClearColor(.5f, .7f, .9f, 1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		game.viewport.update(game.WIDTH, game.HEIGHT);
-		game.camera.update();
-		game.renderer.setView(game.camera);
-		game.manager.load("RT-76_Body.png", Texture.class);
-		game.manager.load("MT82_Body.png", Texture.class);
-		game.manager.load("MT-1984_Body.png", Texture.class);
-		game.renderer.render();
-				
-		theTank.draw(batch);
-		
-		
-		//CAMERA MOVE CONTROL
-		if ((Gdx.input.isKeyPressed(Input.Keys.LEFT))) {
-			game.camera.position.x -= 32;
-		};
-		if ((Gdx.input.isKeyPressed(Input.Keys.RIGHT))) {
-			game.camera.position.x += 32;
-		};
-		if ((Gdx.input.isKeyPressed(Input.Keys.UP))) {
-			game.camera.position.y += 32;
-		};
-		if ((Gdx.input.isKeyPressed(Input.Keys.DOWN))) {
-			game.camera.position.y -= 32;
-		};
-		
-		if ((Gdx.input.isKeyPressed(Input.Keys.ESCAPE))) {
-			System.exit(0);
-		};
 		batch.end();
 	}
 	
@@ -274,42 +259,11 @@ public class GameScreen extends ScreenAdapter {
 		//=======================================================================
 		//playerInfo MOVEMENT CONTROL
 		if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-			System.out.println("A Key pressed");
-			tankSprite.rotate(tankTurningSpeed);
-			spriteRotation += tankTurningSpeed * (1/60.f);
-		}
-		
-		if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-			System.out.println("D Key pressed");
-			tankSprite.rotate(-tankTurningSpeed);
-			spriteRotation -= tankTurningSpeed * (1/60.f);
+			theTank.turnTankLeft(true);
 		}
 
 		if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-			System.out.println("W Key pressed");
-			float radians = (float) (spriteRotation * (Math.PI / 180.f));
-			tankDirection.x = (float) Math.cos(Math.toDegrees(radians));
-			tankDirection.y = (float) Math.sin(Math.toDegrees(radians));
-			
-			tankDirection.x *= ((1/60.f) * forwardSpeed);
-			tankDirection.y *= ((1/60.f) * forwardSpeed);
-			
-			tankPosition.x += tankDirection.x;
-			tankPosition.y += tankDirection.y;
-		}
-
-		if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-			System.out.println("S Key pressed" + reverseSpeed);
-			float radians = (float) (spriteRotation * (Math.PI / 180.f));
-			tankDirection.x = (float) Math.cos(Math.toDegrees(radians));
-			tankDirection.y = (float) Math.sin(Math.toDegrees(radians));
-			
-			tankDirection.x *= ((1/60.f) * reverseSpeed);
-			tankDirection.y *= ((1/60.f) * reverseSpeed);
-			
-			tankPosition.x -= tankDirection.x;
-			tankPosition.y -= tankDirection.y;
-			theTank.turnTankLeft(true);
+			theTank.moveTankForward(true);
 		}
 		
 		if (Gdx.input.isKeyPressed(Input.Keys.D)) {
