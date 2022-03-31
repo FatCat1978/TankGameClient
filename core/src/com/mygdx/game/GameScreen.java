@@ -6,6 +6,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -16,12 +17,13 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
-import com.mygdx.game.TankObject;
+
 
 public class GameScreen extends ScreenAdapter {
 
@@ -39,21 +41,36 @@ public class GameScreen extends ScreenAdapter {
 
 	SpriteBatch batch;
 	Tank theTank;
+	
+	
+	PowerUp thepowerUp;
+	
+	//private Box2DDebugRenderer b2dr;
+	private World world;
+	
+	
 	//TurretObject theTurret;
 	private short cameraZoomValue = 0;
 	private MyGdxGame game;
 	private short tankTypeID = 1; //variable responsible for selecting the type of tank the player wishes to use
 	private short tankControlID = 0; //variable that will be used to dictate how the player controls the tank
 	
-	private World world;
+	
 	
 	//Constructor Method
 	public GameScreen(MyGdxGame game) {
 		batch = new SpriteBatch();
 		
-		world = new World(new Vector2(0,0), true);
+		this.world = new World(new Vector2(0,0), false);
+		this.world.setContactListener(new WorldContactListener());
+		//this.b2dr = new Box2DDebugRenderer();
 		
-		theTank = new Tank(game, (short) tankTypeID, (short) tankControlID);
+		theTank = new Tank(game, world, (short) tankTypeID, (short) tankControlID);
+		
+		
+		thepowerUp = new PowerUp(game, world);
+		
+		
 		
 		this.game = game;
 		loadAssetsNStuff();
@@ -66,6 +83,9 @@ public class GameScreen extends ScreenAdapter {
 		game.manager.load("RT-76_Turret_Head.png", Texture.class);
 		game.manager.load("MT82_Turret_Head.png", Texture.class);
 		game.manager.load("MT-1984_Turret_Head.png", Texture.class);
+		game.manager.load("Crate_Health.png", Texture.class);
+		game.manager.load("Crate_Sniper.png", Texture.class);
+		game.manager.load("Crate_Para.png", Texture.class);
 	}
 	
 	@Override
@@ -100,6 +120,7 @@ public class GameScreen extends ScreenAdapter {
 			animateRover();	//Call the animateRover function
 		}
 		*/
+		update(delta);
 		handlePlayerMovement(delta);
 		batch.begin();
 		Gdx.gl.glClearColor(.5f, .7f, .9f, 1);
@@ -110,10 +131,19 @@ public class GameScreen extends ScreenAdapter {
 		game.manager.load("RT-76_Body.png", Texture.class);
 		game.manager.load("MT82_Body.png", Texture.class);
 		game.manager.load("MT-1984_Body.png", Texture.class);
+		game.manager.load("RT-76_Turret_Head.png", Texture.class);
+		game.manager.load("MT82_Turret_Head.png", Texture.class);
+		game.manager.load("MT-1984_Turret_Head.png", Texture.class);
+		game.manager.load("Crate_Health.png", Texture.class);
+		game.manager.load("Crate_Sniper.png", Texture.class);
+		game.manager.load("Crate_Para.png", Texture.class);
 		game.renderer.render();
-				
+		
+		//b2dr.render(world, game.camera.combined);
+		
 		theTank.draw(batch);
 		
+		thepowerUp.draw(batch);
 		
 		//CAMERA MOVE CONTROL
 		if ((Gdx.input.isKeyPressed(Input.Keys.LEFT))) {
@@ -181,13 +211,22 @@ public class GameScreen extends ScreenAdapter {
 			theTank.turnTurretRight(true);
 		}
 	}
-
+	
+	public void update(float delta)
+	{
+		
+		world.step(delta, 6, 2);
+		batch.setProjectionMatrix(game.camera.combined);
+		
+	}
+	
 
 	public void hide() {
 	}
 	
 	@Override
 	public void dispose () {
+		//b2dr.dispose();
 		world.dispose();
 		game.manager.dispose();
 	}
