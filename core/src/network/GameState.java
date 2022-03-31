@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.google.gson.Gson;
 import com.mygdx.game.MyGdxGame;
 import com.mygdx.game.Tank;
 
@@ -39,11 +40,20 @@ public class GameState extends Thread
 	private	static Socket client;
 	private static OutputStream outToServer;
 	private static InputStream inFromServer;
+	private static DataOutputStream out;
+	private static DataInputStream in;
+	
+	public static LobbyInfo LI;
+	
+	
 	public static boolean offlineMode = false; //debug!
 	public static boolean serverResponse = false;
 	
 	public static enum allGameStates { IN_LOBBY, IN_SELECT, IN_GAME, WAITING_FOR_SERVER}; //an enum containing tank classes
 	public static allGameStates currentGameState = allGameStates.IN_LOBBY;
+	
+	public static enum allTankPicks {TANK_LARGE,TANK_MEDIUM,TANK_SMALL};
+	public static allTankPicks currentTankPick;
 	
 	public static void Draw(SpriteBatch spriteBatch)
 		{
@@ -53,17 +63,80 @@ public class GameState extends Thread
 			}
 		}
 	
-	void UpdateFromJSON()
+	void UpdateFromJSON(String Packet)
 		{
-			
+			ClientToServerPacket serverComms = new Gson().fromJson(Packet, ClientToServerPacket.class);
+			if(serverComms.packetType == "lobby")
+			{
+				JSONupdateLobby(serverComms.packetInfo);
+				
+			}
+			if(serverComms.packetType == "game")
+			{
+				JSONupdateGame(serverComms.packetInfo);
+			}
 		}
 	
+	void JSONupdateLobby(String Packet)
+	{
+			LI = new Gson().fromJson(Packet, LobbyInfo.class);
+	}
+	
+	void JSONupdateGame(String Packet)
+	{
+			
+	}
 	private void Update()
 	{ //the heartbeat. asks the server for the current gameInfo! Sends current!
 			
+			try
+				{
+				String sendOut = ConstructPacket();
+				if(sendOut == null)
+				{
+					System.out.println("ATTEMPTED TO SEND A NULL PACKET! REGRET. REGRET.");
+					return;
+				}
+				out.writeUTF(sendOut);
+				String response = in.readUTF();
+				UpdateFromJSON(response);
+				} catch(Exception e)
+				{
+					
+				}
+		
 	}
 	
-	private void init_offline()
+	private String ConstructPacket()
+		{
+			switch(currentGameState)
+			{
+			case IN_GAME:
+				return ConstructGamePacket();
+			case IN_LOBBY:
+				return ConstructLobbyPacket();
+			case IN_SELECT:
+				return ConstructLobbyPacket();
+			case WAITING_FOR_SERVER:
+				return ConstructLobbyPacket();
+			default:
+				break;
+			
+			}
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+	private String ConstructLobbyPacket() //sends lobby info over, like what we've chosen, etc etc.
+	{
+			return "";
+	}
+	private String ConstructGamePacket() //sends actual game info over.
+	{
+			return "";
+	}
+	
+	private void init_offline() //if this happens we don't even try to communicate with the server.
 	{
 			offlineMode = true;
 			System.out.println("We are now in offline mode!");
@@ -85,6 +158,10 @@ public class GameState extends Thread
 				client = new Socket(serverName, port);
 				outToServer = client.getOutputStream();
 				inFromServer = client.getInputStream();
+				
+				in = new DataInputStream(inFromServer);
+				out = new DataOutputStream(outToServer);
+				
 			} catch (Exception e)
 			{
 				//jank

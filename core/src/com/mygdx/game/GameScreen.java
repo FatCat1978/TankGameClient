@@ -178,7 +178,10 @@ public class GameScreen extends ScreenAdapter {
 
 			
 			batch.draw(game.manager.get("Main_Menu_Screen.png", Texture.class), 0 , 0);
-			Font.draw(batch, "Waiting for server!", 1920/2 - 50 , 1080/2);
+			Font.draw(batch, "Waiting for server!", 1920/2 , 1080/2);
+			Font.draw(batch, "Players connected:" + GameState.LI.connectedPlayers, 1920/2 , 1080/3);
+			Font.draw(batch, "Your Tank:" + GameState.LI.chosenTankType, 1920/2 , 1080/4);
+			Font.draw(batch, "Players Required:" + GameState.LI.RequiredPlayers, 1920/2 , 1080/5);
 			//if(GameState.activelyConnected || GameState.offlineMode == true)
 			//{
 				//GameState.currentGameState = GameState.allGameStates.IN_GAME;
