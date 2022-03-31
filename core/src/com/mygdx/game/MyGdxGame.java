@@ -1,5 +1,6 @@
 package com.mygdx.game;
 
+import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -7,9 +8,11 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 
 public class MyGdxGame extends Game {
@@ -51,7 +54,7 @@ public class MyGdxGame extends Game {
 		//Create an assets manager and assigns the map
 		manager = new AssetManager();
 		manager.setLoader(TiledMap.class, new TmxMapLoader());
-		//manager.load("Tank_Test_Map.tmx", TiledMap.class);
+		manager.load("Tank_Test_Map.tmx", TiledMap.class);
 		
 		manager.load("RT-76_Select_Card.png", Texture.class);
 		manager.load("RT-76_Body.png", Texture.class);
