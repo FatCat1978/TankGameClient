@@ -97,8 +97,8 @@ public class Tank {
 		float spawnX = 0; //temp variable used to get a random position on the X axis
 		float spawnY = 0; //temp variable used to get a random position on the Y axis
 		
-		spawnX = (float) Math.random() * 1600; //set a random X position within the map's size
-		spawnY = (float) Math.random() * 1600; //set a random Y position within the map's size
+		spawnX = (float) Math.random() * 3200; //set a random X position within the map's size
+		spawnY = (float) Math.random() * 3200; //set a random Y position within the map's size
 		
 		tankPosition.x = spawnX; //set the X position of the actual tank
 		tankPosition.y = spawnY; //set the Y position of the actual tank
