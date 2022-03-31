@@ -1,6 +1,7 @@
 package network;
 
 import java.io.*;
+import java.lang.reflect.Type;
 import java.net.*;
 import java.util.HashMap;
 import java.util.concurrent.Executors;
@@ -10,6 +11,8 @@ import java.util.concurrent.TimeUnit;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 //import com.google.gson.Gson;
 import com.mygdx.game.MyGdxGame;
 import com.mygdx.game.Tank;
@@ -35,7 +38,7 @@ public class GameState extends Thread
 	public static boolean activelyConnected = false;
 	
 	public static String clientKey = "";
-	
+	private Gson converter = new Gson();
 	//Server/Client communication stuff
 	private	static Socket client;
 	private static OutputStream outToServer;
@@ -43,7 +46,7 @@ public class GameState extends Thread
 	private static DataOutputStream out;
 	private static DataInputStream in;
 	
-	public static LobbyInfo LI;
+	public static LobbyInfo LI = new LobbyInfo();
 	
 	
 	public static boolean offlineMode = false; //debug!
@@ -65,13 +68,13 @@ public class GameState extends Thread
 	
 	void UpdateFromJSON(String Packet)
 		{
-			ClientToServerPacket serverComms = null; //= new Gson().fromJson(Packet, ClientToServerPacket.class);
-			if(serverComms.packetType == "lobby")
+			ClientToServerPacket serverComms = converter.fromJson(Packet, ClientToServerPacket.class); //= new Gson().fromJson(Packet, ClientToServerPacket.class);
+			if(serverComms.packetType.equals("lobby"))
 			{
 				JSONupdateLobby(serverComms.packetInfo);
 				
 			}
-			if(serverComms.packetType == "game")
+			if(serverComms.packetType.equals("ingame"))
 			{
 				JSONupdateGame(serverComms.packetInfo);
 			}
@@ -79,16 +82,48 @@ public class GameState extends Thread
 	
 	void JSONupdateLobby(String Packet)
 	{
-			//LI = new Gson().fromJson(Packet, LobbyInfo.class);
+			LI = new Gson().fromJson(Packet, LobbyInfo.class);
+			if(LI.StopExistingInLobby)//it's time to leave.
+				currentGameState = allGameStates.IN_GAME;
 	}
 	
+	@SuppressWarnings("unused")
 	void JSONupdateGame(String Packet)
 	{
+			//we get a hashmap of junk from this
 			
+		Type type = new TypeToken<HashMap<String, TankInfoPacket>>(){}.getType();
+		HashMap<String, TankInfoPacket> tankPacket= new Gson().fromJson(Packet, type);
+			//we get a hashmap of every tank - as TankInfoPackets, though.
+		
+		//first off, see if our current hash can even compare.
+		if(true)//tankPacket.size() != tankHash.size())
+		{//if not, nuke it.
+			tankHash.clear();
+			
+			for(String packetKey : tankPacket.keySet())
+			{
+				TankInfoPacket tankInfoFrom = tankPacket.get(packetKey);
+				Tank2 newTank = new Tank2(Tank2.tankTypes.MEDIUM, new Vector2(tankInfoFrom.x, tankInfoFrom.y), game);
+				newTank.TankRotation = tankInfoFrom.tankAngle;
+				newTank.TurretRotation = tankInfoFrom.turretAngle;
+				newTank.health = tankInfoFrom.health;
+				newTank.maxHealth = tankInfoFrom.healthmax;
+				tankHash.put(packetKey, newTank);
+			}
+			
+		}
+		else //TODO
+		{
+			for(String packetKey : tankPacket.keySet())
+			{
+				
+			}
+		}
 	}
 	private void Update()
 	{ //the heartbeat. asks the server for the current gameInfo! Sends current!
-			
+			System.out.println("Updating from server!");
 			try
 				{
 				String sendOut = ConstructPacket();
@@ -102,18 +137,20 @@ public class GameState extends Thread
 				UpdateFromJSON(response);
 				} catch(Exception e)
 				{
-					
+					System.out.println("Exception caught when trying to connect to server!");
 				}
 		
 	}
 	
 	private String ConstructPacket()
 		{
+			System.out.println("GAME STATE:" + currentGameState);
 			switch(currentGameState)
 			{
 			case IN_GAME:
 				return ConstructGamePacket();
 			case IN_LOBBY:
+				System.out.println("IN LOBBY!");
 				return ConstructLobbyPacket();
 			case IN_SELECT:
 				return ConstructLobbyPacket();
@@ -129,11 +166,39 @@ public class GameState extends Thread
 
 	private String ConstructLobbyPacket() //sends lobby info over, like what we've chosen, etc etc.
 	{
-			return "";
+			LobbyInfo temp = new LobbyInfo();
+			System.out.println("LobbyInfo made");
+			temp.chosenTankType = currentTankPick.toString();
+			System.out.println("assinging tank type:" + temp.chosenTankType);
+			ClientToServerPacket outGoing = new ClientToServerPacket();
+			System.out.println("new outgoing Clientoserver packet made.");
+			
+			System.out.println("made gson converter");
+			outGoing.packetInfo = converter.toJson(temp);
+			outGoing.packetType = "lobby";
+			System.out.println("assigned info and type");
+			System.out.println("LEAVING CONSTRUCT LOBBY PACKET WITH:" + outGoing);
+			return converter.toJson(outGoing);
 	}
 	private String ConstructGamePacket() //sends actual game info over.
 	{
-			return "";
+			ClientToServerPacket C2S = new ClientToServerPacket();
+			TankInfoPacket TP = new TankInfoPacket();
+			Tank2 ourTank = tankHash.get(LI.yourKey);
+			if(ourTank != null)
+			{
+				TP.x = ourTank.TankPos.x;
+				TP.y = ourTank.TankPos.y;
+				TP.health = ourTank.health;
+				TP.healthmax = ourTank.maxHealth;
+				TP.tankAngle = ourTank.TankRotation;
+				TP.turretAngle = ourTank.TurretRotation;
+				TP.size = "medium" ;//TODO;
+				
+			}
+			C2S.packetType = "ingame";
+			C2S.packetInfo = converter.toJson(TP);
+			return  converter.toJson(C2S);
 	}
 	
 	private void init_offline() //if this happens we don't even try to communicate with the server.
@@ -141,12 +206,14 @@ public class GameState extends Thread
 			offlineMode = true;
 			System.out.println("We are now in offline mode!");
 			clientKey = "offline!";
+			LI.yourKey = "offline!";
 			tankHash.put(clientKey, new Tank2(Tank2.tankTypes.MEDIUM, new Vector2(500,500), game));
 			currentGameState = allGameStates.IN_GAME;
 	}
 	
 	public void run()
 	{
+			System.out.println("Attempting to connect to server!");
 			if(offlineMode)
 			{
 				init_offline();
@@ -173,20 +240,32 @@ public class GameState extends Thread
 			}
 			
 			ScheduledExecutorService TickExecutor = Executors.newScheduledThreadPool(1);
+			System.out.println("Attempting to run every tick!");
 			TickExecutor.scheduleAtFixedRate(TankUpdateRunnable, 0, 1000/desiredTickRate, TimeUnit.MILLISECONDS);
 	}
 	
 	Runnable TankUpdateRunnable = new Runnable() {
 		    public void run() {
-		        Update();
-		    }
-		};
+		    		System.out.println("PRE UPDATE");
+		    		try {
+		    			Update();
+		    			System.out.println("POST UPDATE");
+		    		}
+		    		catch(Exception e)
+		    			{
+		    			System.out.println( "ERROR - unexpected exception" );
+		    			}
+
+		}};
 
 	public static void do_input(float delta, boolean w, boolean a, boolean s, boolean d, boolean q, boolean e)
 		{
 			// TODO Auto-generated method stub
-			Tank2 userTank = tankHash.get(clientKey);
-			userTank.do_input(delta, w, a, s, d, q, e);
+			Tank2 userTank = tankHash.get(LI.yourKey);
+			if(userTank!=null)
+				userTank.do_input(delta, w, a, s, d, q, e);
+			else
+				System.out.println("Tank is null with key of " + LI.yourKey + " . TankArray has:" + tankHash.size());
 		}
 
 	public static Tank2 get_client_tank()
@@ -197,4 +276,8 @@ public class GameState extends Thread
 	
 		
 	
+
 }
+
+
+	

@@ -125,7 +125,7 @@ public class GameScreen extends ScreenAdapter {
 			animateRover();	//Call the animateRover function
 		}
 		*/
-		
+		//System.out.println("STATE:" + GameState.currentGameState);
 		batch.begin();
 		if (GameState.currentGameState == GameState.allGameStates.IN_LOBBY){
 			
@@ -175,10 +175,10 @@ public class GameScreen extends ScreenAdapter {
 
 			
 			batch.draw(game.manager.get("Main_Menu_Screen.png", Texture.class), 0 , 0);
-			Font.draw(batch, "Waiting for server!", 1920/2 , 1080/2);
-			Font.draw(batch, "Players connected:" + GameState.LI.connectedPlayers, 1920/2 , 1080/3);
-			Font.draw(batch, "Your Tank:" + GameState.LI.chosenTankType, 1920/2 , 1080/4);
-			Font.draw(batch, "Players Required:" + GameState.LI.RequiredPlayers, 1920/2 , 1080/5);
+			Font.draw(batch, "Waiting for server!", 1920/3 , 1080/2);
+			Font.draw(batch, "Players connected:" + GameState.LI.connectedPlayers, 1920/3 , 1080/3 -50);
+			Font.draw(batch, "Your Tank:" + GameState.LI.chosenTankType, 1920/3 , 1080/4-25);
+			Font.draw(batch, "Players Required:" + GameState.LI.RequiredPlayers, 1920/3 , 1080/5-30);
 			//if(GameState.activelyConnected || GameState.offlineMode == true)
 			//{
 				//GameState.currentGameState = GameState.allGameStates.IN_GAME;
@@ -236,9 +236,11 @@ public class GameScreen extends ScreenAdapter {
 			
 			
 			//CAMERA MOVE CONTROL
-			
+			if(GameState.get_client_tank() != null)
+			{
 			game.camera.position.x = GameState.get_client_tank().TankPos.y;
 			game.camera.position.y = GameState.get_client_tank().TankPos.x; //no clue why these need to be inverted? this is actually kinda scary but it
+			}
 			//is far too late in the morning for me to hunt for WHY this happens
 			
 			/* old cam controls/

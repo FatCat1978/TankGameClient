@@ -24,9 +24,9 @@ public class Tank2
 	
 	//universal junk
 	public Vector2 TankPos;
-	private float TankRotation;
-	private float TurretRotation;
-	private int maxHealth = 1450;
+	public float TankRotation;
+	public float TurretRotation;
+	public int maxHealth = 1450;
 	public int health = 1450;
 	
 	private Texture tankBodyTexture;
