@@ -2,7 +2,9 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -18,7 +20,10 @@ import com.badlogic.gdx.utils.viewport.StretchViewport;
 public class MyGdxGame extends Game {
 	SpriteBatch batch;
 	Texture img;
-	
+	  // for the sound effects
+    soundManager manageAudio;
+    // For the background music
+    Music theMusic;
 	final static short WIDTH = 1920;
 	final static short HEIGHT = 1080;
 	
@@ -55,7 +60,6 @@ public class MyGdxGame extends Game {
 		manager = new AssetManager();
 		manager.setLoader(TiledMap.class, new TmxMapLoader());
 		manager.load("Tank_Test_Map.tmx", TiledMap.class);
-		
 		manager.load("RT-76_Select_Card.png", Texture.class);
 		manager.load("RT-76_Body.png", Texture.class);
 		manager.load("RT-76_Turret_Head.png", Texture.class);
@@ -72,6 +76,8 @@ public class MyGdxGame extends Game {
 		
 		manager.load("Main_Menu_Screen.png", Texture.class);
 		
+		manager.load("Tank_Bullet.png", Texture.class);
+		
 		manager.load("TankBattlefield1.tmx", TiledMap.class);
 		manager.load("RT-76_Body.png", Texture.class);
 		manager.load("RT-76_Turret_Head.png", Texture.class);
@@ -82,6 +88,17 @@ public class MyGdxGame extends Game {
 		manager.finishLoading();
 		selectedTiledMap = manager.get("TankBattlefield1.tmx", TiledMap.class);
 		
+	       // for the sound effects
+        manageAudio = new soundManager();
+        manageAudio.setTheSounds();
+
+        // Get the music file
+        theMusic = Gdx.audio.newMusic(Gdx.files.internal("EmptyCity.ogg"));
+
+        // Play the background music
+        //theMusic.play();
+        //music.setVolume();   // Use this to change the music volume
+        //theMusic.setLooping(true);
 		
 		//Gets the properties of the TiledMap
 		MapProperties properties = selectedTiledMap.getProperties();
