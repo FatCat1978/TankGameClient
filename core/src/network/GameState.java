@@ -27,6 +27,8 @@ public class GameState extends Thread
 	static boolean doUpdate = true;
 	
 	static HashMap<String,Tank2> tankHash = new HashMap<String,Tank2>();
+	static Tank2 ourTank;
+	
 	//hashmap of all the tanks. id to 
 	
 	public static MyGdxGame game;
@@ -66,6 +68,8 @@ public class GameState extends Thread
 	
 	public static void Draw(SpriteBatch spriteBatch)
 		{
+			if(ourTank != null)
+				ourTank.draw(spriteBatch);
 			if(tankHash.keySet().size() == 0)
 				return; //HACK FIX
 			ArrayList<Tank2> allTanks = new ArrayList<Tank2>(tankHash.values());
@@ -111,19 +115,28 @@ public class GameState extends Thread
 	//	if(tankPacket.keySet().containsAll(tankHash.keySet()))
 		//	keysetsMatch = true;
 		
+		if(ourTank == null)
+		{
+			TankInfoPacket tankInfoFrom = tankPacket.get(LI.yourKey);
+			ourTank = new Tank2(StrToTankType(tankInfoFrom.size), new Vector2(tankInfoFrom.x, tankInfoFrom.y), game);
+			ourTank.TankRotation = tankInfoFrom.tankAngle;
+			ourTank.TurretRotation = tankInfoFrom.turretAngle;
+			ourTank.health = tankInfoFrom.health;
+			ourTank.maxHealth = tankInfoFrom.healthmax;
+			
+			
+		}
+		
 		if(!keysetsMatch)//tankPacket.size() != tankHash.size())
 		{//if not, nuke it.
-			tankHash.clear();
+			//tankHash.clear();
 			
 			for(String packetKey : tankPacket.keySet())
 			{
-				if(packetKey == LI.yourKey)
-				{
-					continue;
-				}
+				if(packetKey.equals(LI.yourKey))
+					continue; //sorry stephen.
 				
 				TankInfoPacket tankInfoFrom = tankPacket.get(packetKey);
-				System.out.println("tankInfoFrom size:" + tankInfoFrom.size);
 				Tank2 newTank = new Tank2(StrToTankType(tankInfoFrom.size), new Vector2(tankInfoFrom.x, tankInfoFrom.y), game);
 				newTank.TankRotation = tankInfoFrom.tankAngle;
 				newTank.TurretRotation = tankInfoFrom.turretAngle;
@@ -150,7 +163,6 @@ public class GameState extends Thread
 		}
 	}
 	private tankTypes StrToTankType(String size) {
-		System.out.println("tank type:" + size);
 		// TODO Auto-generated method stub
 		if(size.equals("TANK_SMALL"))
 				return tankTypes.LIGHT;
@@ -217,7 +229,7 @@ public class GameState extends Thread
 	{
 			ClientToServerPacket C2S = new ClientToServerPacket();
 			TankInfoPacket TP = new TankInfoPacket();
-			Tank2 ourTank = tankHash.get(LI.yourKey);
+			Tank2 ourTank = GameState.ourTank;
 			if(ourTank != null)
 			{
 				TP.x = ourTank.TankPos.x;
@@ -240,7 +252,7 @@ public class GameState extends Thread
 			System.out.println("We are now in offline mode!");
 			clientKey = "offline!";
 			LI.yourKey = "offline!";
-			tankHash.put(clientKey, new Tank2(Tank2.tankTypes.MEDIUM, new Vector2(500,500), game));
+			ourTank = new Tank2(Tank2.tankTypes.MEDIUM, new Vector2(500,500), game);
 			currentGameState = allGameStates.IN_LOBBY;
 	}
 	
@@ -294,16 +306,15 @@ public class GameState extends Thread
 	public static void do_input(float delta, boolean w, boolean a, boolean s, boolean d, boolean q, boolean e)
 		{
 			// TODO Auto-generated method stub
-			Tank2 userTank = tankHash.get(LI.yourKey);
-			if(userTank!=null)
-				userTank.do_input(delta, w, a, s, d, q, e);
+			if(ourTank!=null)
+				ourTank.do_input(delta, w, a, s, d, q, e);
 			else
 				System.out.println("Tank is null with key of " + LI.yourKey + " . TankArray has:" + tankHash.size());
 		}
 
 	public static Tank2 get_client_tank()
 		{
-			return tankHash.get(LI.yourKey);
+			return ourTank;
 			// TODO Auto-generated method stub
 		}
 

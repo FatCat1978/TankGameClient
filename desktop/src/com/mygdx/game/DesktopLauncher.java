@@ -9,7 +9,7 @@ public class DesktopLauncher {
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
 		config.setTitle("Joe Mama's Tank Game");
 		config.setForegroundFPS(60);
-		config.setWindowSizeLimits(	400, 400, 500, 500);
+		config.setWindowSizeLimits(	1920, 1080, 1920, 1080);
 		//config.setFullscreenMode(Gdx.graphics.getDisplayMode());
 		new Lwjgl3Application(new MyGdxGame(), config);
 	}
