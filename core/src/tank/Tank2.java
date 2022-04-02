@@ -1,10 +1,15 @@
 package tank;
 
+import java.util.ArrayList;
+import java.util.Date;
+
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.mygdx.game.MyGdxGame;
+
+import network.GameState;
 
 //rewrite/improvement of the Tank family of classes. functionally the exact same. 
 public class Tank2
@@ -17,7 +22,7 @@ public class Tank2
 	private static final float baseRotationSpeed = 90;
 	private static final float baseTurretRotationSpeed = 45;
 	
-	
+	private long lastShot = 0;
 	
 	
 	public static enum tankTypes { LIGHT, MEDIUM, HEAVY }; 
@@ -51,8 +56,8 @@ public class Tank2
 	
 	tankControl currentControlMode = tankControl.ALL;
 	
-	
-	
+	private GameState gameState = new GameState();
+	private MyGdxGame game;
 	public Tank2(tankTypes type, Vector2 position, MyGdxGame game) //constructor. where we init the textures and spritesd.
 	{
 			currentType = type;
@@ -95,13 +100,15 @@ public class Tank2
 			
 			turretSprite = new Sprite(tankTurretTexture); //instantiates a new sprite for the turret body
 			turretSprite.setRotation(0); //ensures that the turret sprite is displayed at the proper angle
+			
+			this.game = game;
 	}
 	//Who: Connor Moffatt.
 	//what: General input wrapper method. 
 	//where: This is called every frame in the gamescreen class. 
 	//why: Cleaner than just passing it directly onto the tank, and allows easy changing ofbehaviour. eg, "turret only" mode, which isn't implemented yet.
 	
-	public void do_input(float deltaTime, boolean W, boolean A, boolean S, boolean D, boolean Q, boolean E)
+	public void do_input(float deltaTime, boolean W, boolean A, boolean S, boolean D, boolean Q, boolean E, boolean SPACE)
 	{
 		float rotation = 0;
 		if(A)
@@ -127,10 +134,24 @@ public class Tank2
 			tankDirection.x = (float) Math.cos(Math.toDegrees(radians));
 			tankDirection.y = (float) Math.sin(Math.toDegrees(radians));
 			 */
+		if (SPACE)
+			shoot();
 		double rotationRadians = -TankRotation*Math.PI/180; //Jared math. works, which I'm kinda proud of.
 		Vector2 MovementVector = new Vector2((float)Math.cos(rotationRadians),(float)Math.sin(rotationRadians));
 		TankPos.mulAdd(MovementVector, speed); //muladd multiplies the former arg by the second. in this case the speed is "pixels per second", multiplyed by jared's heading vector.
 	}
+	
+	public void shoot() {
+		long time = new Date().getTime();
+		
+		if(lastShot + 1000 > time) {
+			return;
+		}
+		lastShot = time;
+		Bullet theBullet = new Bullet(game, TankPos, TurretRotation);
+		gameState.passBullet(theBullet); 
+	}
+	
 	
 	public void update()
 	{ //unused! here for when it may or may not ever not maybe potentially used.
