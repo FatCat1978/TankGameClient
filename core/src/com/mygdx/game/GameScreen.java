@@ -285,6 +285,9 @@ public class GameScreen extends ScreenAdapter {
 		if (Gdx.input.isKeyPressed(Input.Keys.E)) {
 			theTank.turnTurretRight(true);
 		}
+		if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+			theTank.shootBullet(true);
+		}
 	}
 
 	public void handlePlayerMouse() {

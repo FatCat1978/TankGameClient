@@ -11,18 +11,24 @@ public class Tank {
 	private enum tankControl { ALL , TANK, TURRET }; //an enum that holds values for the control types for a player
 	private tankControl controlSetting; //a variable for an enum that will be assigned a value from the enum dealing with control types
 	private TurretObject theTurret; //an uninstantiated instance of the TurretObject class
+	private Bullet theBullet;
 	private TankObject theTankBody; //an uninstantiated instance of the TankObject class
 	private Sprite tankBodySprite; //a sprite variable that will be the visual representation of the tank
+	private Sprite bulletSprite;
 	private Sprite turretSprite; //a sprite variable that will be the visual representation of the turret
 	private Vector2 tankPosition; //a vector2 variable that is responsible for the position of the tank body an by extension the turret
 	private Vector2 tankDirection; //a vector2 variable that is responsible for the direction the tank body should be headed in
 	private Vector2 turretPosition; //a vector2 variable that is repsonsible for the turret's position (should be the same x and y as the tank, rotation is different)
+	private Vector2 turretDirection;
+	private Vector2 bulletPosition;
+	private Vector2 bulletDirection;
+	private Vector2 bulletVelocity; 
 	private float tankAngle;
 	private float turretAngle;
 	private float[] tankStats; //array that holds stats for the tank
 	private float[] turretStats; //array that holds stats for the turret
 	private ArrayList<Tank> arrayOfTanks; //an arrayList to be used to hold tank objects
-	
+	private ArrayList<BulletObject> bulletList;
 	private MyGdxGame game;
 	
 	public Tank(MyGdxGame game, short ID, short controlType) {
@@ -44,6 +50,10 @@ public class Tank {
 		tankPosition = new Vector2(); //instantiates a new vector2 variable for traking the position of the tank body
 		tankDirection = new Vector2(); //instantiates a new vector2 variable for tracking the direction in which the tank is moving
 		turretPosition = new Vector2(); //instantiates a new vector2 variable for tracking the turret's angle and keeping the turret's location equal to that of the tank
+		turretDirection = new Vector2();
+		bulletPosition = new Vector2();
+		bulletDirection = new Vector2();
+		bulletVelocity = new Vector2();
 		tankStats = theTankBody.getTankStats(); //sets the array of stats for the tank from the TankObject class to the tankStats array here
 		turretStats = theTurret.getTurretStats(); //sets the array of stats for the tank from the TurretObject class to the turretStats array here
 		arrayOfTanks = new ArrayList<Tank>(); //instantiates an arraylist that will hold all the tanks in the game
@@ -60,7 +70,7 @@ public class Tank {
 			//control over turret
 			controlSetting = controlSetting.TURRET;
 		}
-		
+		bulletList = new ArrayList<BulletObject>();
 		setRandomSpawnLocation(); //method sets a random spawn loaction
 		setTurretPosition(tankPosition.x, tankPosition.y); //method that will ensure that the turret is at that same position as the tank
 		setTankAngle(0); //sets the initial angle of the tank body
@@ -199,11 +209,21 @@ public class Tank {
 		}
 	}
 	
+	public void shootBullet(boolean keyPressed) {
+		float turretAngle = getTurretAngle();
+		bulletPosition = turretPosition;
+		theBullet = new Bullet(game, bulletPosition, turretAngle);
+	}
+	
 	public void draw(SpriteBatch batch) {
 		tankBodySprite.setPosition(tankPosition.y, tankPosition.x);
 		tankBodySprite.draw(batch);
 		
 		turretSprite.setPosition(turretPosition.y, turretPosition.x);
 		turretSprite.draw(batch);
+		
+		if (theBullet != null) {
+			theBullet.Draw(batch);
+		}
 	}
 }
