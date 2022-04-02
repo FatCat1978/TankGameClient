@@ -106,13 +106,22 @@ public class GameState extends Thread
 			//we get a hashmap of every tank - as TankInfoPackets, though.
 		
 		//first off, see if our current hash can even compare.
-		//Todo.... make this conditional on hashsize matching current hash or not. compare key list?
-		if(true)//tankPacket.size() != tankHash.size())
+		boolean keysetsMatch = false; //we do this by comparing
+		//key verification
+	//	if(tankPacket.keySet().containsAll(tankHash.keySet()))
+		//	keysetsMatch = true;
+		
+		if(!keysetsMatch)//tankPacket.size() != tankHash.size())
 		{//if not, nuke it.
 			tankHash.clear();
 			
 			for(String packetKey : tankPacket.keySet())
 			{
+				if(packetKey == LI.yourKey)
+				{
+					continue;
+				}
+				
 				TankInfoPacket tankInfoFrom = tankPacket.get(packetKey);
 				System.out.println("tankInfoFrom size:" + tankInfoFrom.size);
 				Tank2 newTank = new Tank2(StrToTankType(tankInfoFrom.size), new Vector2(tankInfoFrom.x, tankInfoFrom.y), game);
@@ -124,10 +133,18 @@ public class GameState extends Thread
 			}
 			
 		}
-		else //TODO
+		else //if the keysets line up, we can just update everything without initializing anything. cheaper? marginally.
 		{
 			for(String packetKey : tankPacket.keySet())
 			{
+				TankInfoPacket fromPacket = tankPacket.get(packetKey);
+				Tank2 updated = tankHash.get(packetKey);
+				updated.TankRotation = fromPacket.tankAngle;
+				updated.TurretRotation = fromPacket.turretAngle;
+				updated.health = fromPacket.health;
+				updated.maxHealth = fromPacket.healthmax;
+				updated.TankPos = new Vector2(fromPacket.x,fromPacket.y);
+				tankHash.put(packetKey, updated);
 				
 			}
 		}
@@ -174,7 +191,6 @@ public class GameState extends Thread
 			case IN_GAME:
 				return ConstructGamePacket();
 			case IN_LOBBY:
-				System.out.println("IN LOBBY!");
 				return ConstructLobbyPacket();
 			case IN_SELECT:
 				return ConstructLobbyPacket();
@@ -192,7 +208,6 @@ public class GameState extends Thread
 	{
 			LobbyInfo temp = new LobbyInfo();
 			temp.chosenTankType = currentTankPick.toString();
-			System.out.println("assinging tank type:" + temp.chosenTankType);
 			ClientToServerPacket outGoing = new ClientToServerPacket();
 			outGoing.packetInfo = converter.toJson(temp);
 			outGoing.packetType = "lobby";
