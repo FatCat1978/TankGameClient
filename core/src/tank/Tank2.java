@@ -24,6 +24,8 @@ public class Tank2
 	
 	//universal junk
 	public Vector2 TankPos;
+	
+	public tankTypes currentType = tankTypes.MEDIUM;
 	public float TankRotation;
 	public float TurretRotation;
 	public int maxHealth = 1450;
@@ -51,6 +53,7 @@ public class Tank2
 	
 	public Tank2(tankTypes type, Vector2 position, MyGdxGame game)
 	{
+			currentType = type;
 			TankPos = position;
 			//set the stats.
 			switch(type)

@@ -19,6 +19,7 @@ import com.mygdx.game.MyGdxGame;
 import com.mygdx.game.Tank;
 
 import tank.Tank2;
+import tank.Tank2.tankTypes;
 //controls the location of all the tanks , and the updating of those positions via the server/
 public class GameState extends Thread
 {
@@ -91,7 +92,7 @@ public class GameState extends Thread
 	void JSONupdateLobby(String Packet)
 	{
 			LI = new Gson().fromJson(Packet, LobbyInfo.class);
-			if(LI.StopExistingInLobby)//it's time to leave.
+			if(LI.StopExistingInLobby && currentGameState == allGameStates.WAITING_FOR_SERVER)//it's time to leave.
 				currentGameState = allGameStates.IN_GAME;
 	}
 	
@@ -105,6 +106,7 @@ public class GameState extends Thread
 			//we get a hashmap of every tank - as TankInfoPackets, though.
 		
 		//first off, see if our current hash can even compare.
+		//Todo.... make this conditional on hashsize matching current hash or not. compare key list?
 		if(true)//tankPacket.size() != tankHash.size())
 		{//if not, nuke it.
 			tankHash.clear();
@@ -112,7 +114,8 @@ public class GameState extends Thread
 			for(String packetKey : tankPacket.keySet())
 			{
 				TankInfoPacket tankInfoFrom = tankPacket.get(packetKey);
-				Tank2 newTank = new Tank2(Tank2.tankTypes.MEDIUM, new Vector2(tankInfoFrom.x, tankInfoFrom.y), game);
+				System.out.println("tankInfoFrom size:" + tankInfoFrom.size);
+				Tank2 newTank = new Tank2(StrToTankType(tankInfoFrom.size), new Vector2(tankInfoFrom.x, tankInfoFrom.y), game);
 				newTank.TankRotation = tankInfoFrom.tankAngle;
 				newTank.TurretRotation = tankInfoFrom.turretAngle;
 				newTank.health = tankInfoFrom.health;
@@ -129,6 +132,21 @@ public class GameState extends Thread
 			}
 		}
 	}
+	private tankTypes StrToTankType(String size) {
+		System.out.println("tank type:" + size);
+		// TODO Auto-generated method stub
+		if(size.equals("TANK_SMALL"))
+				return tankTypes.LIGHT;
+		
+		if(size.equals("TANK_LARGE"))
+			return tankTypes.HEAVY;
+		
+		if(size.equals("medium"))
+			return tankTypes.MEDIUM;
+
+		return tankTypes.MEDIUM;
+	}
+
 	private void Update()
 	{ //the heartbeat. asks the server for the current gameInfo! Sends current!
 			try
@@ -173,17 +191,11 @@ public class GameState extends Thread
 	private String ConstructLobbyPacket() //sends lobby info over, like what we've chosen, etc etc.
 	{
 			LobbyInfo temp = new LobbyInfo();
-			System.out.println("LobbyInfo made");
 			temp.chosenTankType = currentTankPick.toString();
 			System.out.println("assinging tank type:" + temp.chosenTankType);
 			ClientToServerPacket outGoing = new ClientToServerPacket();
-			System.out.println("new outgoing Clientoserver packet made.");
-			
-			System.out.println("made gson converter");
 			outGoing.packetInfo = converter.toJson(temp);
 			outGoing.packetType = "lobby";
-			System.out.println("assigned info and type");
-			System.out.println("LEAVING CONSTRUCT LOBBY PACKET WITH:" + outGoing);
 			return converter.toJson(outGoing);
 	}
 	private String ConstructGamePacket() //sends actual game info over.
@@ -199,7 +211,7 @@ public class GameState extends Thread
 				TP.healthmax = ourTank.maxHealth;
 				TP.tankAngle = ourTank.TankRotation;
 				TP.turretAngle = ourTank.TurretRotation;
-				TP.size = "medium" ;//TODO;
+				TP.size = ourTank.currentType.toString();//TODO;
 				
 			}
 			C2S.packetType = "ingame";

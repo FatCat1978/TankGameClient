@@ -5,7 +5,7 @@ public class TankInfoPacket
 	int health = 0 ;
 	int healthmax = 0;
 	String key = "";
-	String size = "medium";
+	String size = "ERROR";
 	float x;
 	float y;
 	
