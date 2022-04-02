@@ -3,6 +3,7 @@ package network;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.net.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -21,7 +22,9 @@ import tank.Tank2;
 //controls the location of all the tanks , and the updating of those positions via the server/
 public class GameState extends Thread
 {
-	Integer controlledTank;
+	
+	static boolean doUpdate = true;
+	
 	static HashMap<String,Tank2> tankHash = new HashMap<String,Tank2>();
 	//hashmap of all the tanks. id to 
 	
@@ -58,9 +61,14 @@ public class GameState extends Thread
 	public static enum allTankPicks {TANK_LARGE,TANK_MEDIUM,TANK_SMALL,NO_SELECTION};
 	public static allTankPicks currentTankPick = allTankPicks.NO_SELECTION;
 	
+	ScheduledExecutorService TickExecutor;
+	
 	public static void Draw(SpriteBatch spriteBatch)
 		{
-			for(Tank2 toDraw : tankHash.values())
+			if(tankHash.keySet().size() == 0)
+				return; //HACK FIX
+			ArrayList<Tank2> allTanks = new ArrayList<Tank2>(tankHash.values());
+			for(Tank2 toDraw : allTanks)
 			{
 				toDraw.draw(spriteBatch);
 			}
@@ -123,7 +131,6 @@ public class GameState extends Thread
 	}
 	private void Update()
 	{ //the heartbeat. asks the server for the current gameInfo! Sends current!
-			System.out.println("Updating from server!");
 			try
 				{
 				String sendOut = ConstructPacket();
@@ -144,7 +151,6 @@ public class GameState extends Thread
 	
 	private String ConstructPacket()
 		{
-			System.out.println("GAME STATE:" + currentGameState);
 			switch(currentGameState)
 			{
 			case IN_GAME:
@@ -208,7 +214,7 @@ public class GameState extends Thread
 			clientKey = "offline!";
 			LI.yourKey = "offline!";
 			tankHash.put(clientKey, new Tank2(Tank2.tankTypes.MEDIUM, new Vector2(500,500), game));
-			currentGameState = allGameStates.IN_GAME;
+			currentGameState = allGameStates.IN_LOBBY;
 	}
 	
 	public void run()
@@ -222,7 +228,9 @@ public class GameState extends Thread
 			//we're making a new connection..
 			try
 			{
+				System.out.println("Making new connection to:" + serverName + ":" + port);
 				client = new Socket(serverName, port);
+				System.out.println("Connection Established to:" + client.isConnected() + " ," + client.toString());
 				outToServer = client.getOutputStream();
 				inFromServer = client.getInputStream();
 				
@@ -239,17 +247,15 @@ public class GameState extends Thread
 				return;				
 			}
 			
-			ScheduledExecutorService TickExecutor = Executors.newScheduledThreadPool(1);
-			System.out.println("Attempting to run every tick!");
+			TickExecutor = Executors.newScheduledThreadPool(1);
 			TickExecutor.scheduleAtFixedRate(TankUpdateRunnable, 0, 1000/desiredTickRate, TimeUnit.MILLISECONDS);
 	}
 	
 	Runnable TankUpdateRunnable = new Runnable() {
 		    public void run() {
-		    		System.out.println("PRE UPDATE");
 		    		try {
-		    			Update();
-		    			System.out.println("POST UPDATE");
+		    			if(doUpdate)
+		    				Update();
 		    		}
 		    		catch(Exception e)
 		    			{
@@ -270,9 +276,21 @@ public class GameState extends Thread
 
 	public static Tank2 get_client_tank()
 		{
-			return tankHash.get(clientKey);
+			return tankHash.get(LI.yourKey);
 			// TODO Auto-generated method stub
 		}
+
+	public static void dispose() {
+		doUpdate = false;
+		// TODO Auto-generated method stub
+		try {
+			client.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
 	
 		
 	

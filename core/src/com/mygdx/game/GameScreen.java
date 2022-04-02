@@ -49,7 +49,7 @@ public class GameScreen extends ScreenAdapter {
 	
 	private CharSequence[] TestArray = {"Joe Mama","Joe Sister","Joe Papa","Joe Brother"};
 	private int TestNumber;
-	private int YIncrament = 0;
+	private int YIncrament = -100;
 	
 	
 	
@@ -127,6 +127,7 @@ public class GameScreen extends ScreenAdapter {
 		*/
 		//System.out.println("STATE:" + GameState.currentGameState);
 		batch.begin();
+		//TODO: break this out into 3 independent render methods.
 		if (GameState.currentGameState == GameState.allGameStates.IN_LOBBY){
 			
 			Gdx.gl.glClearColor(50/255f, 70/255f, 90/255f, 1);
@@ -134,11 +135,12 @@ public class GameScreen extends ScreenAdapter {
 			game.viewport.update(game.WIDTH, game.HEIGHT);
 			batch.draw(game.manager.get("Main_Menu_Screen.png", Texture.class), 0 , 0);
 			Font.draw(batch, "Play", 1920/2 - 50 , 1080/2);
-			Font.draw(batch, "Player's In Lobby:", 25 , 1000 - YIncrament);
-			YIncrament += 100;
+			
+			Font.draw(batch, "Players In Lobby:", 25 , 900); //TODO: update from server?
+			YIncrament = 100;
 			for (TestNumber = 0;TestNumber < TestArray.length; TestNumber++) {
-				Font.draw(batch, TestArray[TestNumber], 25 , 1000 - YIncrament);
-				YIncrament += 30*Gdx.graphics.getDeltaTime();
+				Font.draw(batch, TestArray[TestNumber], 25 , 900 - YIncrament);
+				YIncrament += 50;
 			}
 		}
 		
@@ -179,10 +181,10 @@ public class GameScreen extends ScreenAdapter {
 			Font.draw(batch, "Players connected:" + GameState.LI.connectedPlayers, 1920/3 , 1080/3 -50);
 			Font.draw(batch, "Your Tank:" + GameState.LI.chosenTankType, 1920/3 , 1080/4-25);
 			Font.draw(batch, "Players Required:" + GameState.LI.RequiredPlayers, 1920/3 , 1080/5-30);
-			//if(GameState.activelyConnected || GameState.offlineMode == true)
-			//{
-				//GameState.currentGameState = GameState.allGameStates.IN_GAME;
-			//}
+			if(GameState.offlineMode == true)
+			{
+				GameState.currentGameState = GameState.allGameStates.IN_GAME;
+			}
 		}
 		
 		if (GameState.currentGameState == GameState.allGameStates.IN_GAME) {
@@ -411,5 +413,6 @@ public class GameScreen extends ScreenAdapter {
 	public void dispose () {
 		world.dispose();
 		game.manager.dispose();
+		GameState.dispose();
 	}
 }
