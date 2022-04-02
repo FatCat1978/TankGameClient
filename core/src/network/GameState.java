@@ -1,5 +1,12 @@
 package network;
 
+//the big cheese.
+//the head honcho. 
+//this controls the gamestate, ae: where everything is.
+
+//synched with the server at regular intervals.
+
+
 import java.io.*;
 import java.lang.reflect.Type;
 import java.net.*;
@@ -24,22 +31,24 @@ import tank.Tank2.tankTypes;
 public class GameState extends Thread
 {
 	
-	static boolean doUpdate = true;
+	static boolean doUpdate = true; //do we even bother to update? only false when closing.
 	
-	static HashMap<String,Tank2> tankHash = new HashMap<String,Tank2>();
-	static Tank2 ourTank;
+	static HashMap<String,Tank2> tankHash = new HashMap<String,Tank2>(); //hashmap of all the tanks - paired with a key, which is less relevant now
+	//it's effectively just a list right now for the client side, just a hash because of what it is on the server.
 	
-	//hashmap of all the tanks. id to 
+	static Tank2 ourTank; //shortcut reference to our tank - it's independant of the hash for updating ease
+	//because if we updated it with the hash (like we used to), it'll cause unusuable amounts of stuttering.
 	
-	public static MyGdxGame game;
+	
+	public static MyGdxGame game; //ref to the game, used for drawing.
 	
 	final static int desiredTickRate = 30; //how many ticks per second are we aiming for?
 	
 	static long lastTick; //when was the last tick? used for determining deltaTime
 	
 	
-	String serverName = "localhost";
-	int port = 6066;
+	String serverName = "localhost"; //where are we connecting to?
+	int port = 6066;//port.
 	
 	public static boolean activelyConnected = false;
 	

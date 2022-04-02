@@ -1,5 +1,8 @@
 package network;
 
+//this is converted to json and put into the packet's info slot.
+
+//basically just a fancy holder to make code happy organize :)
 
 public class LobbyInfo
 {

@@ -12,3 +12,4 @@ public class TankInfoPacket
 	float tankAngle = 0;
 
 }
+//another self explainatory class. this is just a shrunken version of the tank2 class

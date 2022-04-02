@@ -6,10 +6,12 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.mygdx.game.MyGdxGame;
 
-//rewrite/improvement of the Tank family of classes. 
+//rewrite/improvement of the Tank family of classes. functionally the exact same. 
 public class Tank2
 {
 	//medium tank defaults.
+	//all of these are measured in either pixels per second, or degrees per second
+	//yes, this uses deltatime.
 	private static final float baseForwardSpeed = 64;
 	private static final float baseBackwardSpeed = 48;
 	private static final float baseRotationSpeed = 90;
@@ -18,20 +20,20 @@ public class Tank2
 	
 	
 	
-	public static enum tankTypes { LIGHT, MEDIUM, HEAVY }; //an enum containing tank classes
+	public static enum tankTypes { LIGHT, MEDIUM, HEAVY }; 
 	
-	public static enum tankControl { ALL , TANK, TURRET }; //an enum that holds values for the control types for a player
+	public static enum tankControl { ALL , TANK, TURRET }; //tank control types.
 	
 	//universal junk
-	public Vector2 TankPos;
+	public Vector2 TankPos; //where are we?
 	
-	public tankTypes currentType = tankTypes.MEDIUM;
-	public float TankRotation;
-	public float TurretRotation;
-	public int maxHealth = 1450;
-	public int health = 1450;
+	public tankTypes currentType = tankTypes.MEDIUM; //how chunky are we?
+	public float TankRotation; //where are we facing?
+	public float TurretRotation; //where are we aiming?
+	public int maxHealth = 1450; //how much health can we have?
+	public int health = 1450; //how much health DO we have?
 	
-	private Texture tankBodyTexture;
+	private Texture tankBodyTexture; //texture for making the sprites.
 	private Texture tankTurretTexture;
 	
 	private Sprite tankBodySprite; //a sprite variable that will be the visual representation of the tank
@@ -43,7 +45,7 @@ public class Tank2
 	float forwardSpeed = baseForwardSpeed;//pixels per second
 	float backwardSpeed = baseBackwardSpeed; //pixels per second.
 	
-	float fireRate = 4; //cooldown between shots.
+	float fireRate = 4; //cooldown between shots. in seconds?
 	
 	long lastFired = 0; //when did we last shoot?
 	
@@ -51,12 +53,12 @@ public class Tank2
 	
 	
 	
-	public Tank2(tankTypes type, Vector2 position, MyGdxGame game)
+	public Tank2(tankTypes type, Vector2 position, MyGdxGame game) //constructor. where we init the textures and spritesd.
 	{
 			currentType = type;
 			TankPos = position;
 			//set the stats.
-			switch(type)
+			switch(type) //modify based on size, heavy, light, medium. etc.
 			{
 			case HEAVY:
 				health = 2000;
@@ -81,7 +83,7 @@ public class Tank2
 				tankTurretTexture = game.manager.get("MT-1984_Turret_Head.png", Texture.class);
 				break;
 				
-			default:
+			default: //saftey! medium tank. if you want to add a "I AM ERROR" tank, this is where you'd do it.
 				tankBodyTexture = game.manager.get("MT-1984_Body.png", Texture.class); //sanity check.
 				tankTurretTexture = game.manager.get("MT-1984_Turret_Head.png", Texture.class);
 				break;
@@ -94,6 +96,10 @@ public class Tank2
 			turretSprite = new Sprite(tankTurretTexture); //instantiates a new sprite for the turret body
 			turretSprite.setRotation(0); //ensures that the turret sprite is displayed at the proper angle
 	}
+	//Who: Connor Moffatt.
+	//what: General input wrapper method. 
+	//where: This is called every frame in the gamescreen class. 
+	//why: Cleaner than just passing it directly onto the tank, and allows easy changing ofbehaviour. eg, "turret only" mode, which isn't implemented yet.
 	
 	public void do_input(float deltaTime, boolean W, boolean A, boolean S, boolean D, boolean Q, boolean E)
 	{
@@ -121,15 +127,17 @@ public class Tank2
 			tankDirection.x = (float) Math.cos(Math.toDegrees(radians));
 			tankDirection.y = (float) Math.sin(Math.toDegrees(radians));
 			 */
-		double rotationRadians = -TankRotation*Math.PI/180;
+		double rotationRadians = -TankRotation*Math.PI/180; //Jared math. works, which I'm kinda proud of.
 		Vector2 MovementVector = new Vector2((float)Math.cos(rotationRadians),(float)Math.sin(rotationRadians));
-		TankPos.mulAdd(MovementVector, speed);
+		TankPos.mulAdd(MovementVector, speed); //muladd multiplies the former arg by the second. in this case the speed is "pixels per second", multiplyed by jared's heading vector.
 	}
 	
 	public void update()
-	{
+	{ //unused! here for when it may or may not ever not maybe potentially used.
 			
 	}
+	
+	//Draw method. draws both the tank and turret. self explainatory. 
 	public void draw(SpriteBatch spriteBatch)
 		{
 			tankBodySprite.setRotation(TankRotation);
