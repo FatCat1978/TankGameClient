@@ -1,5 +1,24 @@
 package com.mygdx.game;
 
+
+/*
+ * 
+ *   _____  ______ _____  _____  _____ _____       _______ ______ _____  
+ |  __ \|  ____|  __ \|  __ \|_   _/ ____|   /\|__   __|  ____|  __ \ 
+ | |  | | |__  | |__) | |__) | | || |       /  \  | |  | |__  | |  | |
+ | |  | |  __| |  ___/|  _  /  | || |      / /\ \ | |  |  __| | |  | |
+ | |__| | |____| |    | | \ \ _| || |____ / ____ \| |  | |____| |__| |
+ |_____/|______|_|    |_|  \_\_____\_____/_/    \_\_|  |______|_____/ 
+                                                                      
+                                                                      
+ * This is usurped by tank2.
+ * don't use this.
+ * 
+ * 
+ * 
+ * 
+ */
+
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
