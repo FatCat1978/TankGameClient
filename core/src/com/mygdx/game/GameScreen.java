@@ -96,6 +96,12 @@ public class GameScreen extends ScreenAdapter {
 	}
 	
 	@Override
+	public void resize(int width, int height) {
+        game.viewport.update(width, height);
+        game.camera.update();
+    }
+	
+	@Override
 	public void render(float delta) {
 		//=======================================================================
 		//|Method			:	render				   			
@@ -115,23 +121,14 @@ public class GameScreen extends ScreenAdapter {
 		//|												move around
 		//|						MAR 19 2022 J. Smith	added if statements to handle different screens
 		//=======================================================================
-		/*
-		timeInSeconds += Gdx.graphics.getDeltaTime();	//timeInSeconds gets added to it's current amount in delta time 
-														//with every call of the render (60fps)
-		
-		if (timeInSeconds > 0.05f) {	//if timeInSeconds is greater than 1/20 of a second
-			timeInSeconds -= 0.05f;	//Subtract 1/20 of a second of the timer
-			animateRover();	//Call the animateRover function
-		}
-		*/
 		
 		batch.begin();
 		if (InLobby == true) {
 			
 			Gdx.gl.glClearColor(50/255f, 70/255f, 90/255f, 1);
 			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-			game.viewport.update(game.WIDTH, game.HEIGHT);
-			batch.draw(game.manager.get("Main_Menu_Screen.png", Texture.class), 0 , 0);
+			//game.viewport.update(game.WIDTH, game.HEIGHT);
+			batch.draw(game.manager.get("Main_Menu_Screen.png", Texture.class), 0 , 0, game.viewport.getWorldWidth(), game.viewport.getWorldHeight());
 			Font.draw(batch, "Play", 1920/2 - 50 , 1080/2);
 			Font.draw(batch, "Player's In Lobby:", 25 , 1000 - YIncrament);
 			YIncrament += 100;
@@ -139,6 +136,7 @@ public class GameScreen extends ScreenAdapter {
 				Font.draw(batch, TestArray[TestNumber], 25 , 1000 - YIncrament);
 				YIncrament += 100;
 			}
+			YIncrament = 0;
 		}
 		
 		if (InSelect == true){
@@ -178,6 +176,8 @@ public class GameScreen extends ScreenAdapter {
 			game.renderer.setView(game.camera);
 			game.renderer.render();
 			
+			theTank.TankAnimationTimer(Gdx.graphics.getDeltaTime(),0.25f);
+			
 			//batch.draw(theTank.getTankBodyTexture(), theTank.getTankPositionY(), theTank.getTankPositionX());
 					
 			
@@ -211,9 +211,6 @@ public class GameScreen extends ScreenAdapter {
 			game.viewport.update(game.WIDTH, game.HEIGHT);
 			game.camera.update();
 			game.renderer.setView(game.camera);
-			game.manager.load("RT-76_Body.png", Texture.class);
-			game.manager.load("MT82_Body.png", Texture.class);
-			game.manager.load("MT-1984_Body.png", Texture.class);
 			game.renderer.render();
 					
 			theTank.draw(batch);
@@ -260,22 +257,22 @@ public class GameScreen extends ScreenAdapter {
 		//playerInfo MOVEMENT CONTROL
 		if (Gdx.input.isKeyPressed(Input.Keys.A)) {
 			theTank.turnTankLeft(true);
-		}
-
-		if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-			theTank.moveTankForward(true);
+			theTank.DrawParticle = true;
 		}
 		
 		if (Gdx.input.isKeyPressed(Input.Keys.D)) {
 			theTank.turnTankRight(true);
+			theTank.DrawParticle = true;
 		}
 
 		if (Gdx.input.isKeyPressed(Input.Keys.W)) {
 			theTank.moveTankForward(true);
+			theTank.DrawParticle = true;
 		}
 
 		if (Gdx.input.isKeyPressed(Input.Keys.S)) {
 			theTank.moveTankBackward(true);
+			theTank.DrawParticle = true;
 		}
 		
 		if (Gdx.input.isKeyPressed(Input.Keys.Q)) {

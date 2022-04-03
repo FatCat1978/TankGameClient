@@ -2,6 +2,8 @@ package com.mygdx.game;
 
 import java.util.ArrayList;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
@@ -22,6 +24,10 @@ public class Tank {
 	private float[] tankStats; //array that holds stats for the tank
 	private float[] turretStats; //array that holds stats for the turret
 	private ArrayList<Tank> arrayOfTanks; //an arrayList to be used to hold tank objects
+	private float Timer;
+	public boolean DrawParticle = true;
+	
+	private ParticleClass Particle;
 	
 	private MyGdxGame game;
 	
@@ -200,10 +206,45 @@ public class Tank {
 	}
 	
 	public void draw(SpriteBatch batch) {
+		if (DrawParticle == true && Particle != null) {
+			Particle.DrawTexture(batch, true);
+		}
+		
 		tankBodySprite.setPosition(tankPosition.y, tankPosition.x);
 		tankBodySprite.draw(batch);
 		
 		turretSprite.setPosition(turretPosition.y, turretPosition.x);
 		turretSprite.draw(batch);
+
+	}
+	
+	public void TankAnimationTimer(float seconds, float MaxTime) {
+		//=======================================================================
+		//|Method			:	TankAnimationTimer(float seconds)				   			
+		//|																   		
+		//|Method parameters:	(float seconds)								   		
+		//|																   		
+		//|What it does		:	Methods that accepts seconds passed and will activate every 1s
+		//|						
+		//|																	    
+		//|Change log		:	Date		Creator    	Notes			    
+		//|						===========	========   	=============	    
+		//|						MAR 30 2022	J. Smith 	Initial setup   
+		//=======================================================================
+		Timer += seconds;	//timeInSeconds gets added to it's current amount in delta time 
+		
+		if (Particle != null) {
+			Particle.UpdateListIndex(seconds , MaxTime/3);
+		}
+		
+		if (Timer > MaxTime) {
+			Timer -= MaxTime;
+			//Particle = null;
+			Particle = new ParticleClass(tankPosition.x, tankPosition.y);
+			Particle.AddTexture(game.manager.get("Dirt_Sprite_1.png", Texture.class), true);
+			Particle.AddTexture(game.manager.get("Dirt_Sprite_2.png", Texture.class), true);
+			Particle.AddTexture(game.manager.get("Dirt_Sprite_3.png", Texture.class), true);
+			System.out.println("1 Second Has Passed");
+		}
 	}
 }

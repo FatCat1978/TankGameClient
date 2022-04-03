@@ -13,6 +13,8 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 
 public class MyGdxGame extends Game {
@@ -29,7 +31,7 @@ public class MyGdxGame extends Game {
 	
 	OrthogonalTiledMapRenderer renderer;
 	OrthographicCamera camera;
-	StretchViewport viewport;
+	ScreenViewport viewport;
 	
 	int tileWidth, tileHeight, 
 	mapWidthInTiles, mapHeightInTiles,
@@ -79,6 +81,13 @@ public class MyGdxGame extends Game {
 		manager.load("AT82_Turret_Head.png", Texture.class);
 		manager.load("MT-1984_Body.png", Texture.class);
 		manager.load("MT-1984_Turret_Head.png", Texture.class);
+		
+		manager.load("Dirt_Sprite_1.png", Texture.class);
+		manager.load("Dirt_Sprite_2.png", Texture.class);
+		manager.load("Dirt_Sprite_3.png", Texture.class);
+		
+		manager.load("Engine_Smoke_Normal.png", Texture.class);
+		
 		manager.finishLoading();
 		selectedTiledMap = manager.get("TankBattlefield1.tmx", TiledMap.class);
 		
@@ -94,10 +103,10 @@ public class MyGdxGame extends Game {
 		
 		//Creates The Camera
 		camera = new OrthographicCamera(WIDTH, HEIGHT);
-		viewport = new StretchViewport (WIDTH, HEIGHT, camera);
+		viewport = new ScreenViewport (camera);
 		viewport.apply();
 		camera.zoom = 0.1f;
-		camera.position.set(WIDTH/2, HEIGHT/2, 0);
+		camera.position.set(0, 0, 0);
 		camera.update();
 		
 		tileSet = selectedTiledMap.getTileSets().getTileSet(0);
