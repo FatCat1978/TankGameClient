@@ -22,7 +22,7 @@ public class MyGdxGame extends Game {
 	final static short WIDTH = 1920;
 	final static short HEIGHT = 1080;
 	
-	public AssetManager manager;
+	AssetManager manager;
 	
 	TiledMap selectedTiledMap;
 	TiledMapTileSet tileSet;
@@ -71,7 +71,7 @@ public class MyGdxGame extends Game {
 		manager.load("Card_Selected.png", Texture.class);
 		
 		manager.load("Main_Menu_Screen.png", Texture.class);
-		manager.load("Tank_Bullet.png", Texture.class);
+		
 		manager.load("TankBattlefield1.tmx", TiledMap.class);
 		manager.load("RT-76_Body.png", Texture.class);
 		manager.load("RT-76_Turret_Head.png", Texture.class);
