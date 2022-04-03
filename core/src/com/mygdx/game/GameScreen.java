@@ -234,7 +234,7 @@ public class GameScreen extends ScreenAdapter {
 			game.manager.load("MT-1984_Body.png", Texture.class);
 			game.renderer.render();
 					
-			GameState.Draw(batch);
+			GameState.Draw(batch, delta);
 			
 			
 			//CAMERA MOVE CONTROL
@@ -292,8 +292,9 @@ public class GameScreen extends ScreenAdapter {
 			boolean D = Gdx.input.isKeyPressed(Input.Keys.D);
 			boolean Q = Gdx.input.isKeyPressed(Input.Keys.Q);
 			boolean E = Gdx.input.isKeyPressed(Input.Keys.E);
+			boolean SPACE = Gdx.input.isKeyJustPressed(Input.Keys.SPACE);
 			
-			GameState.do_input(delta, W, A, S, D, Q, E);
+			GameState.do_input(delta, W, A, S, D, Q, E, SPACE);
 			
 			/*
 		if (Gdx.input.isKeyPressed(Input.Keys.A)) {

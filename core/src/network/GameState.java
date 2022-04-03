@@ -16,6 +16,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -25,6 +27,7 @@ import com.google.gson.reflect.TypeToken;
 import com.mygdx.game.MyGdxGame;
 import com.mygdx.game.Tank;
 
+import tank.Bullet;
 import tank.Tank2;
 import tank.Tank2.tankTypes;
 //controls the location of all the tanks , and the updating of those positions via the server/
@@ -62,7 +65,7 @@ public class GameState extends Thread
 	private static DataInputStream in;
 	
 	public static LobbyInfo LI = new LobbyInfo();
-	
+	static ArrayList<Bullet> bulletList = new ArrayList<Bullet>();
 	
 	public static boolean offlineMode = false; //debug!
 	public static boolean serverResponse = false;
@@ -75,19 +78,37 @@ public class GameState extends Thread
 	
 	ScheduledExecutorService TickExecutor;
 	
-	public static void Draw(SpriteBatch spriteBatch)
-		{
-			if(ourTank != null)
-				ourTank.draw(spriteBatch);
-			if(tankHash.keySet().size() == 0)
-				return; //HACK FIX
-			ArrayList<Tank2> allTanks = new ArrayList<Tank2>(tankHash.values());
-			for(Tank2 toDraw : allTanks)
-			{
-				toDraw.draw(spriteBatch);
-			}
-		}
+	Bullet theBullet;
 	
+	public void passBullet(Bullet theBullet) {
+		this.theBullet = theBullet;
+		bulletList.add(this.theBullet);
+	}
+	
+	public static void Draw(SpriteBatch spriteBatch, float delta)
+	{
+	update(delta);
+		if(ourTank != null)
+			ourTank.draw(spriteBatch);
+		if(tankHash.keySet().size() == 0)
+			return; //HACK FIX
+		ArrayList<Tank2> allTanks = new ArrayList<Tank2>(tankHash.values());
+		for(Tank2 toDraw : allTanks)
+		{
+			toDraw.draw(spriteBatch);
+		}
+		for(Bullet toDraw : bulletList)
+		{
+			toDraw.Draw(spriteBatch);
+		}
+	}
+	
+	private static void update(float delta) {
+		for(Bullet toUpdate : bulletList)
+		{
+			toUpdate.Update(delta);
+		}
+	}
 	void UpdateFromJSON(String Packet)
 		{
 			ClientToServerPacket serverComms = converter.fromJson(Packet, ClientToServerPacket.class); //= new Gson().fromJson(Packet, ClientToServerPacket.class);
@@ -312,14 +333,15 @@ public class GameState extends Thread
 
 		}};
 
-	public static void do_input(float delta, boolean w, boolean a, boolean s, boolean d, boolean q, boolean e)
+		public static void do_input(float delta, boolean w, boolean a, boolean s, boolean d, boolean q, boolean e, boolean space)
 		{
 			// TODO Auto-generated method stub
 			if(ourTank!=null)
-				ourTank.do_input(delta, w, a, s, d, q, e);
+				ourTank.do_input(delta, w, a, s, d, q, e, space);
 			else
 				System.out.println("Tank is null with key of " + LI.yourKey + " . TankArray has:" + tankHash.size());
 		}
+
 
 	public static Tank2 get_client_tank()
 		{
