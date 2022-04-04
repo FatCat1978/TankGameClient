@@ -168,7 +168,7 @@ public class Tank2
 			turretSprite.setRotation(TurretRotation);
 			turretSprite.setPosition(TankPos.y,TankPos.x);
 			turretSprite.draw(spriteBatch);				
-	}
+		}
 
 	
 	
