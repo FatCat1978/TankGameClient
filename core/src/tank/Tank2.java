@@ -23,7 +23,12 @@ public class Tank2
 	private static final float baseTurretRotationSpeed = 45;
 	
 	private long lastShot = 0;
+
+	boolean youDied = false; //when true, we pan across the map.
 	
+	public static final int TILE_SIZE = 64;
+	public static final int MAP_SIZE = 20; //square. frankly a brain dead spot to put it.
+	//I stopped caring. team codes a character, I code a line. that's why I shitcode on group project time.
 	
 	public static enum tankTypes { LIGHT, MEDIUM, HEAVY }; 
 	
@@ -36,7 +41,7 @@ public class Tank2
 	public float TankRotation; //where are we facing?
 	public float TurretRotation; //where are we aiming?
 	public int maxHealth = 1450; //how much health can we have?
-	public int health = 1450; //how much health DO we have?
+	public int health = 1450; //how much health DO we have? Doesn't matter anymore lol projectile moment
 	
 	private Texture tankBodyTexture; //texture for making the sprites.
 	private Texture tankTurretTexture;
@@ -65,20 +70,20 @@ public class Tank2
 			//set the stats.
 			switch(type) //modify based on size, heavy, light, medium. etc.
 			{
-			case HEAVY:
-				health = 2000;
-				forwardSpeed *= 0.6;
-				backwardSpeed *= 0.6;
+			case HEAVY: //health is irrelevant. 
+				health = 2000; 
+				forwardSpeed *= 2.3;
+				backwardSpeed *= 2.3; //fastest, horrible at turning.
 				turnSpeed *= 0.6;
 				tankBodyTexture = game.manager.get("AT82_Body.png", Texture.class);
 				tankTurretTexture = game.manager.get("AT82_Turret_Head.png", Texture.class);
 				break;
 			
-			case LIGHT:
+			case LIGHT: //all around nimble.
 				health = 750;
-				forwardSpeed *= 1.6;
-				backwardSpeed *= 1.6;
-				turnSpeed *= 1.6;
+				forwardSpeed *= 1;
+				backwardSpeed *= 6; //comically fast backwards.
+				turnSpeed *= 3;
 				tankBodyTexture = game.manager.get("RT-76_Body.png", Texture.class);
 				tankTurretTexture =  game.manager.get("RT-76_Turret_Head.png", Texture.class);
 				break;
@@ -130,26 +135,33 @@ public class Tank2
 		if(S)
 			speed -= backwardSpeed*deltaTime;
 			/*
-			 * 			float radians = (float) (-getTankAngle() * (Math.PI / 180.f));
-			tankDirection.x = (float) Math.cos(Math.toDegrees(radians));
-			tankDirection.y = (float) Math.sin(Math.toDegrees(radians));
+		
 			 */
-		if (SPACE)
-			shoot();
-		double rotationRadians = -TankRotation*Math.PI/180; //Jared math. works, which I'm kinda proud of.
+		double rotationRadians = TankRotation*Math.PI/180; //Jared math. works, which I'm kinda proud of.
 		Vector2 MovementVector = new Vector2((float)Math.cos(rotationRadians),(float)Math.sin(rotationRadians));
 		TankPos.mulAdd(MovementVector, speed); //muladd multiplies the former arg by the second. in this case the speed is "pixels per second", multiplyed by jared's heading vector.
+		if(TankPos.x > TILE_SIZE*(MAP_SIZE-1)) //alright, I'm blaming jared for the X and Y being inverted. //fixed.
+		{
+			TankPos.x = TILE_SIZE*(MAP_SIZE-1)-5;
+		}
+		if(TankPos.x < 0)
+		{
+			TankPos.x = 5;
+		}
+		if(TankPos.y > TILE_SIZE*(MAP_SIZE-1))
+		{
+			TankPos.y = TILE_SIZE*(MAP_SIZE-1)-5;
+		}
+		if(TankPos.y < 0)
+		{
+			TankPos.y = 5;
+		}
+		//TODO: limit to map boundries.
+		//TODO: tank death effect. spawn a grave thing?
 	}
 	
 	public void shoot() {
-		long time = new Date().getTime();
-		
-		if(lastShot + 1000 > time) {
-			return;
-		}
-		lastShot = time;
-		Bullet theBullet = new Bullet(game, TankPos, TurretRotation);
-		gameState.passBullet(theBullet); 
+		return; //not needed anymore. not removing it.
 	}
 	
 	
@@ -162,12 +174,12 @@ public class Tank2
 	public void draw(SpriteBatch spriteBatch)
 		{
 			tankBodySprite.setRotation(TankRotation);
-			tankBodySprite.setPosition(TankPos.y, TankPos.x);
+			tankBodySprite.setPosition(TankPos.x, TankPos.y);
 			tankBodySprite.draw(spriteBatch);
 			
-			turretSprite.setRotation(TurretRotation);
-			turretSprite.setPosition(TankPos.y,TankPos.x);
-			turretSprite.draw(spriteBatch);				
+		//	turretSprite.setRotation(TurretRotation); //we can just not draw it. it's more of a pain than not to rip it out 
+		//	turretSprite.setPosition(TankPos.y,TankPos.x);
+		//	turretSprite.draw(spriteBatch);				
 		}
 
 	

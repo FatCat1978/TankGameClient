@@ -50,15 +50,7 @@ public class GameScreen extends ScreenAdapter {
 	private CharSequence[] TestArray = {"Joe Mama","Joe Sister","Joe Papa","Joe Brother"};
 	private int TestNumber;
 	private int YIncrament = -100;
-	
-	
-	
-	
-	
-	
-	
-	
-	
+		
 	
 	GameState gameState; 
 	
@@ -238,10 +230,10 @@ public class GameScreen extends ScreenAdapter {
 			
 			
 			//CAMERA MOVE CONTROL
-			if(GameState.get_client_tank() != null)
+			if(GameState.get_client_tank() != null && GameState.deadOrNot != true)
 			{
-			game.camera.position.x = GameState.get_client_tank().TankPos.y;
-			game.camera.position.y = GameState.get_client_tank().TankPos.x; //no clue why these need to be inverted? this is actually kinda scary but it
+			game.camera.position.x = GameState.get_client_tank().TankPos.x;
+			game.camera.position.y = GameState.get_client_tank().TankPos.y; //no clue why these need to be inverted? this is actually kinda scary but it
 			}
 			//is far too late in the morning for me to hunt for WHY this happens
 			
@@ -294,36 +286,21 @@ public class GameScreen extends ScreenAdapter {
 			boolean E = Gdx.input.isKeyPressed(Input.Keys.E);
 			boolean SPACE = Gdx.input.isKeyJustPressed(Input.Keys.SPACE);
 			
-			GameState.do_input(delta, W, A, S, D, Q, E, SPACE);
-			
-			/*
-		if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-			theTank.turnTankLeft(true);
-		}
+			if(GameState.deadOrNot == false && GameState.ourTank != null)
+				GameState.do_input(delta, W, A, S, D, Q, E, SPACE);
+			else
+				//move the camera
+			{
+				if(W)
+					game.camera.position.y += 64*delta;
+				if(A);
+					game.camera.position.x -= 64*delta;
+				if(S);
+					game.camera.position.y -= 64*delta;
+				if(D);
+					game.camera.position.x += 64*delta;
+			}	
 
-		if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-			theTank.moveTankForward(true);
-		}
-		
-		if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-			theTank.turnTankRight(true);
-		}
-
-		if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-			theTank.moveTankForward(true);
-		}
-
-		if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-			theTank.moveTankBackward(true);
-		}
-		
-		if (Gdx.input.isKeyPressed(Input.Keys.Q)) {
-			theTank.turnTurretLeft(true);
-		}
-		
-		if (Gdx.input.isKeyPressed(Input.Keys.E)) {
-			theTank.turnTurretRight(true);
-		} */
 	}
 
 	public void handlePlayerMouse() {

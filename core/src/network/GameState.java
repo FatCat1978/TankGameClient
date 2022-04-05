@@ -39,7 +39,7 @@ public class GameState extends Thread
 	static HashMap<String,Tank2> tankHash = new HashMap<String,Tank2>(); //hashmap of all the tanks - paired with a key, which is less relevant now
 	//it's effectively just a list right now for the client side, just a hash because of what it is on the server.
 	
-	static Tank2 ourTank; //shortcut reference to our tank - it's independant of the hash for updating ease
+	public static Tank2 ourTank; //shortcut reference to our tank - it's independant of the hash for updating ease
 	//because if we updated it with the hash (like we used to), it'll cause unusuable amounts of stuttering.
 	
 	
@@ -54,6 +54,8 @@ public class GameState extends Thread
 	int port = 6066;//port.
 	
 	public static boolean activelyConnected = false;
+	public static boolean deadOrNot = false; //true if dead. 
+	
 	
 	public static String clientKey = "";
 	private Gson converter = new Gson();
@@ -78,7 +80,7 @@ public class GameState extends Thread
 	
 	ScheduledExecutorService TickExecutor;
 	
-	Bullet theBullet;
+	Bullet theBullet; //WHY the hell was this a singleton
 	
 	public void passBullet(Bullet theBullet) {
 		this.theBullet = theBullet;
@@ -104,10 +106,6 @@ public class GameState extends Thread
 	}
 	
 	private static void update(float delta) {
-		for(Bullet toUpdate : bulletList)
-		{
-			toUpdate.Update(delta);
-		}
 	}
 	void UpdateFromJSON(String Packet)
 		{
@@ -135,13 +133,14 @@ public class GameState extends Thread
 	{
 			//we get a hashmap of junk from this
 			
-		Type type = new TypeToken<HashMap<String, TankInfoPacket>>(){}.getType();
-		HashMap<String, TankInfoPacket> tankPacket= new Gson().fromJson(Packet, type);
+	//	Type type = new TypeToken<HashMap<String, TankInfoPacket>>(){}.getType();
+	//	HashMap<String, TankInfoPacket> tankPacket= new Gson().fromJson(Packet, type);
 			//we get a hashmap of every tank - as TankInfoPackets, though.
 		
+		GameStateSend fromServer = converter.fromJson(Packet, GameStateSend.class);
+
 		//first off, see if our current hash can even compare.
-		boolean keysetsMatch = false; //we do this by comparing
-		//key verification
+		
 	//	if(tankPacket.keySet().containsAll(tankHash.keySet()))
 		//	keysetsMatch = true;
 		
@@ -157,16 +156,16 @@ public class GameState extends Thread
 			
 		}
 		
-		if(!keysetsMatch)//tankPacket.size() != tankHash.size())
+		if(true)//tankPacket.size() != tankHash.size()) //shitty hack fix. don't care.
 		{//if not, nuke it.
 			//tankHash.clear();
 			
-			for(String packetKey : tankPacket.keySet())
+			for(String packetKey : fromServer.allGameTanks.keySet())
 			{
 				if(packetKey.equals(LI.yourKey))
 					continue; //sorry stephen.
 				
-				TankInfoPacket tankInfoFrom = tankPacket.get(packetKey);
+				TankInfoPacket tankInfoFrom = fromServer.allGameTanks.get(packetKey);
 				Tank2 newTank = new Tank2(StrToTankType(tankInfoFrom.size), new Vector2(tankInfoFrom.x, tankInfoFrom.y), game);
 				newTank.TankRotation = tankInfoFrom.tankAngle;
 				newTank.TurretRotation = tankInfoFrom.turretAngle;
@@ -176,21 +175,13 @@ public class GameState extends Thread
 			}
 			
 		}
-		else //if the keysets line up, we can just update everything without initializing anything. cheaper? marginally.
-		{
-			for(String packetKey : tankPacket.keySet())
-			{
-				TankInfoPacket fromPacket = tankPacket.get(packetKey);
-				Tank2 updated = tankHash.get(packetKey);
-				updated.TankRotation = fromPacket.tankAngle;
-				updated.TurretRotation = fromPacket.turretAngle;
-				updated.health = fromPacket.health;
-				updated.maxHealth = fromPacket.healthmax;
-				updated.TankPos = new Vector2(fromPacket.x,fromPacket.y);
-				tankHash.put(packetKey, updated);
-				
-			}
-		}
+		
+		
+		
+		
+		
+		
+		
 	}
 	private tankTypes StrToTankType(String size) {
 		// TODO Auto-generated method stub

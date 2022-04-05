@@ -79,6 +79,8 @@ public class MyGdxGame extends Game {
 		manager.load("AT82_Turret_Head.png", Texture.class);
 		manager.load("MT-1984_Body.png", Texture.class);
 		manager.load("MT-1984_Turret_Head.png", Texture.class);
+		
+		
 		manager.finishLoading();
 		selectedTiledMap = manager.get("TankBattlefield1.tmx", TiledMap.class);
 		
