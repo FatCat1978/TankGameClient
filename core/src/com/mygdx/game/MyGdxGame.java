@@ -16,13 +16,14 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 
 public class MyGdxGame extends Game {
+	private tankAppClient theClient = new tankAppClient();
 	SpriteBatch batch;
 	Texture img;
 	
 	final static short WIDTH = 1920;
 	final static short HEIGHT = 1080;
 	
-	public AssetManager manager;
+	AssetManager manager;
 	
 	TiledMap selectedTiledMap;
 	TiledMapTileSet tileSet;
@@ -54,31 +55,21 @@ public class MyGdxGame extends Game {
 		//Create an assets manager and assigns the map
 		manager = new AssetManager();
 		manager.setLoader(TiledMap.class, new TmxMapLoader());
-		manager.load("Tank_Test_Map.tmx", TiledMap.class);
-		
-		manager.load("RT-76_Select_Card.png", Texture.class);
-		manager.load("RT-76_Body.png", Texture.class);
-		manager.load("RT-76_Turret_Head.png", Texture.class);
-		
-		manager.load("AT82_Select_Card.png", Texture.class);
-		manager.load("AT82_Body.png", Texture.class);
-		manager.load("AT82_Turret_Head.png", Texture.class);
-		
-		manager.load("MT-1984_Select_Card.png", Texture.class);
-		manager.load("MT-1984_Body.png", Texture.class);
-		manager.load("MT-1984_Turret_Head.png", Texture.class);
-		
-		manager.load("Card_Selected.png", Texture.class);
-		
-		manager.load("Main_Menu_Screen.png", Texture.class);
-		manager.load("Tank_Bullet.png", Texture.class);
+		manager.load("Tank_Bullet_V2.png", Texture.class);
 		manager.load("TankBattlefield1.tmx", TiledMap.class);
 		manager.load("RT-76_Body.png", Texture.class);
 		manager.load("RT-76_Turret_Head.png", Texture.class);
+		manager.load("MT-1984_Select_Card.png", Texture.class);
+		manager.load("AT82_Select_Card.png", Texture.class);
+		manager.load("RT-76_Select_Card.png", Texture.class);
+		manager.load("Card_Selected.png", Texture.class);
 		manager.load("AT82_Body.png", Texture.class);
 		manager.load("AT82_Turret_Head.png", Texture.class);
 		manager.load("MT-1984_Body.png", Texture.class);
 		manager.load("MT-1984_Turret_Head.png", Texture.class);
+		manager.load("Crate_Health.png", Texture.class);
+		manager.load("Crate_Sniper.png", Texture.class);
+		manager.load("Crate_Para.png", Texture.class);
 		manager.finishLoading();
 		selectedTiledMap = manager.get("TankBattlefield1.tmx", TiledMap.class);
 		
@@ -106,6 +97,10 @@ public class MyGdxGame extends Game {
 		
 		this.setScreen(new GameScreen(this));
 
+	}
+	
+	public tankAppClient getClient() {
+		return theClient;
 	}
 
 	@Override

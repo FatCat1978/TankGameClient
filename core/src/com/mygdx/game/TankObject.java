@@ -73,17 +73,17 @@ public class TankObject  {
 		//conditional statement that determines the tank class and texture for the tank body
 		if (ID == 1) {
 			//light tank
-			tankType = tankTypes.LIGHT;
+			tankType = tankType.LIGHT;
 			tankBody = game.manager.get("RT-76_Body.png", Texture.class);
 		}
 		if (ID == 2) {
 			//medium tank
-			tankType = tankTypes.MEDIUM;
+			tankType = tankType.MEDIUM;
 			tankBody = game.manager.get("MT-1984_Body.png", Texture.class);
 		}
 		if (ID == 3) {
 			//heavy tank
-			tankType = tankTypes.HEAVY;
+			tankType = tankType.HEAVY;
 			tankBody = game.manager.get("AT82_Body.png", Texture.class);
 		}
 	}

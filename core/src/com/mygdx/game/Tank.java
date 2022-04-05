@@ -1,25 +1,17 @@
 package com.mygdx.game;
 
-/*
- * 
- * 
- * 
- *   _____  ______ _____  _____  _____ _____       _______ ______ _____  
- |  __ \|  ____|  __ \|  __ \|_   _/ ____|   /\|__   __|  ____|  __ \ 
- | |  | | |__  | |__) | |__) | | || |       /  \  | |  | |__  | |  | |
- | |  | |  __| |  ___/|  _  /  | || |      / /\ \ | |  |  __| | |  | |
- | |__| | |____| |    | | \ \ _| || |____ / ____ \| |  | |____| |__| |
- |_____/|______|_|    |_|  \_\_____\_____/_/    \_\_|  |______|_____/ 
-                                                                      
-                                                                     
- * Don't use this.
- * Seriously.
- */
 import java.util.ArrayList;
+import java.util.Date;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 
 public class Tank {
 
@@ -31,16 +23,21 @@ public class Tank {
 	private Sprite turretSprite; //a sprite variable that will be the visual representation of the turret
 	private Vector2 tankPosition; //a vector2 variable that is responsible for the position of the tank body an by extension the turret
 	private Vector2 tankDirection; //a vector2 variable that is responsible for the direction the tank body should be headed in
-	private Vector2 turretPosition; //a vector2 variable that is repsonsible for the turret's position (should be the same x and y as the tank, rotation is different)
+	private Vector2 turretPosition; //a vector2 variable that is responsible for the turret's position (should be the same x and y as the tank, rotation is different)
 	private float tankAngle;
 	private float turretAngle;
 	private float[] tankStats; //array that holds stats for the tank
 	private float[] turretStats; //array that holds stats for the turret
+	private long lastShot;
 	private ArrayList<Tank> arrayOfTanks; //an arrayList to be used to hold tank objects
-	
+	private ArrayList<Bullet> bulletList = new ArrayList<Bullet>();
+	private float bulletLife = 0;
+	private float tankHealth = 0;
 	private MyGdxGame game;
+	private tankAppClient theClient;
+	public Body body;
 	
-	public Tank(MyGdxGame game, short ID, short controlType) {
+	public Tank(MyGdxGame game, World world, tankAppClient theClient, short ID, short controlType) {
 		/*
 		 * Constructor Name:					Tank
 		 * 
@@ -56,12 +53,14 @@ public class Tank {
 		 */
 		theTankBody = new TankObject(game, ID); //instantiates a new tank(body)Object
 		theTurret = new TurretObject(game, ID); //instantiates a new turretObject
-		tankPosition = new Vector2(); //instantiates a new vector2 variable for traking the position of the tank body
+		tankPosition = new Vector2(); //instantiates a new vector2 variable for tracking the position of the tank body
 		tankDirection = new Vector2(); //instantiates a new vector2 variable for tracking the direction in which the tank is moving
 		turretPosition = new Vector2(); //instantiates a new vector2 variable for tracking the turret's angle and keeping the turret's location equal to that of the tank
 		tankStats = theTankBody.getTankStats(); //sets the array of stats for the tank from the TankObject class to the tankStats array here
 		turretStats = theTurret.getTurretStats(); //sets the array of stats for the tank from the TurretObject class to the turretStats array here
 		arrayOfTanks = new ArrayList<Tank>(); //instantiates an arraylist that will hold all the tanks in the game
+		this.theClient = theClient;
+		tankHealth = tankStats[0];
 		//conditionals that will be used to set the enum variable for available controls
 		if (controlType == 0) {
 			//control over both tank body and turret
@@ -80,6 +79,8 @@ public class Tank {
 		setTurretPosition(tankPosition.x, tankPosition.y); //method that will ensure that the turret is at that same position as the tank
 		setTankAngle(0); //sets the initial angle of the tank body
 		setTurretAngle(0); //sets the initial angle of the turret body
+		
+		createBoxBody(world, tankPosition.x, tankPosition.y);
 		
 		tankBodySprite = new Sprite(theTankBody.getTankBodyTexture()); //instantiates a new sprite for the tank body
 		tankBodySprite.setRotation(0); //ensures that the tank body sprite is displayed at the proper angle
@@ -112,8 +113,8 @@ public class Tank {
 		float spawnX = 0; //temp variable used to get a random position on the X axis
 		float spawnY = 0; //temp variable used to get a random position on the Y axis
 		
-		spawnX = (float) Math.random() * 3200; //set a random X position within the map's size
-		spawnY = (float) Math.random() * 3200; //set a random Y position within the map's size
+		spawnX = (float) Math.random() * 1600; //set a random X position within the map's size
+		spawnY = (float) Math.random() * 1600; //set a random Y position within the map's size
 		
 		tankPosition.x = spawnX; //set the X position of the actual tank
 		tankPosition.y = spawnY; //set the Y position of the actual tank
@@ -166,6 +167,12 @@ public class Tank {
 			
 			turretPosition.x = tankPosition.x;
 			turretPosition.y = tankPosition.y;
+			
+			theClient.setTankandTurretData(tankPosition.x, tankPosition.y, getTankAngle(), getTurretAngle());
+			
+			//this.body.setTransform(tankPosition.y + 35, tankPosition.x + 35, tankAngle);
+			
+			
 		}
 	}
 	
@@ -183,6 +190,12 @@ public class Tank {
 			
 			turretPosition.x = tankPosition.x;
 			turretPosition.y = tankPosition.y;
+			
+			theClient.setTankandTurretData(tankPosition.x, tankPosition.y, getTankAngle(), getTurretAngle());
+			
+			//this.body.setTransform(tankPosition.y + 35, tankPosition.x + 35, tankAngle);
+			
+
 		}
 	}
 	
@@ -190,6 +203,10 @@ public class Tank {
 		if (controlSetting.equals(controlSetting.ALL) || controlSetting.equals(controlSetting.TANK)) {
 			tankBodySprite.rotate(tankStats[3]);
 			setTankAngle(tankStats[3] * (1/60.f));
+			
+			theClient.setTankandTurretData(tankPosition.x, tankPosition.y, getTankAngle(), getTurretAngle());
+			
+			//this.body.setTransform(tankPosition.y + 35, tankPosition.x + 35, tankAngle);
 		}
 	}
 	
@@ -197,6 +214,10 @@ public class Tank {
 		if (controlSetting.equals(controlSetting.ALL) || controlSetting.equals(controlSetting.TANK)) {
 			tankBodySprite.rotate(-tankStats[3]);
 			setTankAngle(-tankStats[3] * (1/60.f));
+			
+			theClient.setTankandTurretData(tankPosition.x, tankPosition.y, getTankAngle(), getTurretAngle());
+			
+			//this.body.setTransform(tankPosition.y + 35, tankPosition.x + 35, tankAngle);
 		}
 	}
 	
@@ -204,6 +225,8 @@ public class Tank {
 		if (controlSetting.equals(controlSetting.ALL) || controlSetting.equals(controlSetting.TURRET)) {
 			turretSprite.rotate(turretStats[1]);
 			setTurretAngle(turretStats[1] * (1/60.f));
+			
+			theClient.setTankandTurretData(tankPosition.x, tankPosition.y, getTankAngle(), getTurretAngle());
 		}
 	}
 	
@@ -211,14 +234,81 @@ public class Tank {
 		if (controlSetting.equals(controlSetting.ALL) || controlSetting.equals(controlSetting.TURRET)) {
 			turretSprite.rotate(-turretStats[1]);
 			setTurretAngle(-turretStats[1] * (1/60.f));
+			
+			theClient.setTankandTurretData(tankPosition.x, tankPosition.y, getTankAngle(), getTurretAngle());
+		}
+	}
+	
+	public void spacePressed(boolean keyPressed) {
+		shoot();
+	}
+	
+	public void tankDamage() {
+		theClient.setTankHealth(tankHealth);
+	}
+	
+	public void shoot() {
+		long time = new Date().getTime();
+		
+		if(lastShot + 1000 > time) {
+			return;
+		}
+		lastShot = time;
+		Bullet theBullet = new Bullet(game,theClient, turretPosition, getTurretAngle());
+		bulletList.add(theBullet);
+	}
+	
+	public void iterationBullets(float delta) {
+		for(Bullet toUpdate : bulletList)
+		{
+			toUpdate.Update(delta);
+		}
+		bulletLife += delta;
+		if(bulletList.size() > 0 && bulletLife > 2.5f) {
+			bulletList.remove(0);
+			bulletLife = 0;
 		}
 	}
 	
 	public void draw(SpriteBatch batch) {
+		for(Tank toDraw : arrayOfTanks) {
+			toDraw.drawTank(batch);
+		}
+		iterationBullets((1/60.f));
+		for(Bullet toDraw : bulletList) {
+			toDraw.Draw(batch);
+		}
+	}
+	
+	public void drawTank(SpriteBatch batch) {
 		tankBodySprite.setPosition(tankPosition.y, tankPosition.x);
 		tankBodySprite.draw(batch);
 		
 		turretSprite.setPosition(turretPosition.y, turretPosition.x);
 		turretSprite.draw(batch);
 	}
+	
+	private void createBoxBody(World world, float x, float y) 
+	{
+		BodyDef bdef = new BodyDef();
+		bdef.fixedRotation = true;
+		bdef.type = BodyDef.BodyType.DynamicBody;
+		bdef.position.set(tankPosition.y + 35, tankPosition.x + 35);
+		
+		
+		PolygonShape shape = new PolygonShape();
+		shape.setAsBox(35, 35);
+		
+		FixtureDef fdef = new FixtureDef();
+		fdef.shape = shape;
+		fdef.density = 1.0f;
+		
+		this.body = world.createBody(bdef);
+		this.body.createFixture(fdef).setUserData(this);
+		
+		this.body.setTransform(tankPosition.y + 35, tankPosition.x + 35, tankAngle);
+		
+	}
+	
+	
 }
