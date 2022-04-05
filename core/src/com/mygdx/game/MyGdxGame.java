@@ -23,7 +23,7 @@ public class MyGdxGame extends Game {
 	final static short WIDTH = 1920;
 	final static short HEIGHT = 1080;
 	
-	AssetManager manager;
+	public AssetManager manager;
 	
 	TiledMap selectedTiledMap;
 	TiledMapTileSet tileSet;
