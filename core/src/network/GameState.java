@@ -50,7 +50,7 @@ public class GameState extends Thread
 	static long lastTick; //when was the last tick? used for determining deltaTime
 	
 	
-	String serverName = "localhost"; //where are we connecting to?
+	String serverName = "IP HERE"; //where are we connecting to?
 	int port = 6066;//port.
 	
 	public static boolean activelyConnected = false;
@@ -163,7 +163,10 @@ public class GameState extends Thread
 			ourTank.health = tankInfoFrom.health;
 			ourTank.maxHealth = tankInfoFrom.healthmax;
 			if(ourTank.youDied)
+			{
+				currentGameState = allGameStates.IN_LOBBY;
 				ourTank = null;
+			}	
 			}
 			else
 				ourTank = null;
