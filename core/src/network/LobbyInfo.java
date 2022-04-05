@@ -6,6 +6,7 @@ package network;
 
 public class LobbyInfo
 {
+	public boolean Ready = false; //to
 	public String chosenTankType = ""; //sent TO the server
 	public String connectedPlayers = ""; //gotten FROM the server
 	public String yourKey = ""; //FROM the server.

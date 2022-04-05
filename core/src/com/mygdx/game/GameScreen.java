@@ -70,7 +70,7 @@ public class GameScreen extends ScreenAdapter {
 		gameState.run();
 
 		this.game = game;
-		loadAssetsNStuff();
+		loadAssetsNStuff(); //WHY
 	}
 	
 	public void loadAssetsNStuff(){
@@ -190,20 +190,6 @@ public class GameScreen extends ScreenAdapter {
 			
 			//batch.draw(theTank.getTankBodyTexture(), theTank.getTankPositionY(), theTank.getTankPositionX());
 					
-			
-			//CAMERA MOVE CONTROL
-			if ((Gdx.input.isKeyPressed(Input.Keys.LEFT))) {
-				game.camera.position.x -= 32;
-			};
-			if ((Gdx.input.isKeyPressed(Input.Keys.RIGHT))) {
-				game.camera.position.x += 32;
-			};
-			if ((Gdx.input.isKeyPressed(Input.Keys.UP))) {
-				game.camera.position.y += 32;
-			};
-			if ((Gdx.input.isKeyPressed(Input.Keys.DOWN))) {
-				game.camera.position.y -= 32;
-			};	
 			//CAMERA ZOOM FUNTIONS
 			if (Gdx.input.isKeyPressed(Input.Keys.NUMPAD_SUBTRACT) && cameraZoomValue != 20) {
 				game.camera.zoom = game.camera.zoom + 0.1f;	//Lower the number the closer the camera
@@ -237,20 +223,6 @@ public class GameScreen extends ScreenAdapter {
 			}
 			//is far too late in the morning for me to hunt for WHY this happens
 			
-			/* old cam controls/
-			if ((Gdx.input.isKeyPressed(Input.Keys.LEFT))) {
-				game.camera.position.x -= 32;
-			};
-			if ((Gdx.input.isKeyPressed(Input.Keys.RIGHT))) {
-				game.camera.position.x += 32;
-			};
-			if ((Gdx.input.isKeyPressed(Input.Keys.UP))) {
-				game.camera.position.y += 32;
-			};
-			if ((Gdx.input.isKeyPressed(Input.Keys.DOWN))) {
-				game.camera.position.y -= 32;
-			};
-			*/
 			
 			if ((Gdx.input.isKeyPressed(Input.Keys.ESCAPE))) {
 				System.exit(0);
@@ -288,18 +260,6 @@ public class GameScreen extends ScreenAdapter {
 			
 			if(GameState.deadOrNot == false && GameState.ourTank != null)
 				GameState.do_input(delta, W, A, S, D, Q, E, SPACE);
-			else
-				//move the camera
-			{
-				if(W)
-					game.camera.position.y += 64*delta;
-				if(A);
-					game.camera.position.x -= 64*delta;
-				if(S);
-					game.camera.position.y -= 64*delta;
-				if(D);
-					game.camera.position.x += 64*delta;
-			}	
 
 	}
 

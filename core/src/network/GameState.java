@@ -69,6 +69,7 @@ public class GameState extends Thread
 	public static LobbyInfo LI = new LobbyInfo();
 	static ArrayList<Bullet> bulletList = new ArrayList<Bullet>();
 	
+	public static ArrayList<TankGraveLoc> allGraves = new ArrayList<TankGraveLoc>(); 
 	public static boolean offlineMode = false; //debug!
 	public static boolean serverResponse = false;
 	
@@ -139,24 +140,38 @@ public class GameState extends Thread
 		
 		GameStateSend fromServer = converter.fromJson(Packet, GameStateSend.class);
 
+		if(fromServer.youDied)
+		{
+			if(ourTank != null)
+				ourTank.death();
+			//ourTank = null;
+		}
 		//first off, see if our current hash can even compare.
 		
 	//	if(tankPacket.keySet().containsAll(tankHash.keySet()))
 		//	keysetsMatch = true;
 		
-		if(ourTank == null)
+		if(ourTank == null || fromServer.forceUpdateTank)
 		{
-			TankInfoPacket tankInfoFrom = tankPacket.get(LI.yourKey);
+			TankInfoPacket tankInfoFrom = fromServer.allGameTanks.get(LI.yourKey);
+			if(tankInfoFrom != null)
+			{
 			ourTank = new Tank2(StrToTankType(tankInfoFrom.size), new Vector2(tankInfoFrom.x, tankInfoFrom.y), game);
+			ourTank.youDied = tankInfoFrom.dead;
 			ourTank.TankRotation = tankInfoFrom.tankAngle;
 			ourTank.TurretRotation = tankInfoFrom.turretAngle;
 			ourTank.health = tankInfoFrom.health;
 			ourTank.maxHealth = tankInfoFrom.healthmax;
-			
+			if(ourTank.youDied)
+				ourTank = null;
+			}
+			else
+				ourTank = null;
 			
 		}
 		
-		if(true)//tankPacket.size() != tankHash.size()) //shitty hack fix. don't care.
+		if(true)//tankPacket.size() != tankHash.size()) //shitty hack fix. don't care. Never got the proper one working anyway.
+			//not like it matters lol
 		{//if not, nuke it.
 			//tankHash.clear();
 			
@@ -171,6 +186,7 @@ public class GameState extends Thread
 				newTank.TurretRotation = tankInfoFrom.turretAngle;
 				newTank.health = tankInfoFrom.health;
 				newTank.maxHealth = tankInfoFrom.healthmax;
+				newTank.youDied = tankInfoFrom.dead;
 				tankHash.put(packetKey, newTank);
 			}
 			
@@ -212,6 +228,7 @@ public class GameState extends Thread
 				UpdateFromJSON(response);
 				} catch(Exception e)
 				{
+					e.printStackTrace();
 					System.out.println("Exception caught when trying to connect to server!");
 				}
 		
@@ -240,6 +257,8 @@ public class GameState extends Thread
 	private String ConstructLobbyPacket() //sends lobby info over, like what we've chosen, etc etc.
 	{
 			LobbyInfo temp = new LobbyInfo();
+			if(currentGameState == allGameStates.WAITING_FOR_SERVER)
+				temp.Ready = true;
 			temp.chosenTankType = currentTankPick.toString();
 			ClientToServerPacket outGoing = new ClientToServerPacket();
 			outGoing.packetInfo = converter.toJson(temp);

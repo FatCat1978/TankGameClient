@@ -24,7 +24,7 @@ public class Tank2
 	
 	private long lastShot = 0;
 
-	boolean youDied = false; //when true, we pan across the map.
+	public boolean youDied = false; //when true, we pan across the map.
 	
 	public static final int TILE_SIZE = 64;
 	public static final int MAP_SIZE = 20; //square. frankly a brain dead spot to put it.
@@ -49,6 +49,8 @@ public class Tank2
 	private Sprite tankBodySprite; //a sprite variable that will be the visual representation of the tank
 	private Sprite turretSprite; //a sprite variable that will be the visual representation of the turret
 	
+	private Sprite deathSprite;
+	private Texture DeathTexture;
 
 	//stats.
 	float turnSpeed = baseRotationSpeed; //degrees per second.
@@ -81,8 +83,8 @@ public class Tank2
 			
 			case LIGHT: //all around nimble.
 				health = 750;
-				forwardSpeed *= 1;
-				backwardSpeed *= 6; //comically fast backwards.
+				forwardSpeed *= 6;
+				backwardSpeed *= 2; //comically fast backwards.
 				turnSpeed *= 3;
 				tankBodyTexture = game.manager.get("RT-76_Body.png", Texture.class);
 				tankTurretTexture =  game.manager.get("RT-76_Turret_Head.png", Texture.class);
@@ -98,7 +100,11 @@ public class Tank2
 				tankTurretTexture = game.manager.get("MT-1984_Turret_Head.png", Texture.class);
 				break;
 			
+			
 			}
+			DeathTexture = game.manager.get("Grave.png",Texture.class);
+			deathSprite = new Sprite(DeathTexture);
+			
 			maxHealth = health;
 			tankBodySprite = new Sprite(tankBodyTexture); //instantiates a new sprite for the tank body
 			tankBodySprite.setRotation(0); //ensures that the tank body sprite is displayed at the proper angle
@@ -115,6 +121,9 @@ public class Tank2
 	
 	public void do_input(float deltaTime, boolean W, boolean A, boolean S, boolean D, boolean Q, boolean E, boolean SPACE)
 	{
+		if(youDied)
+			return;
+		
 		float rotation = 0;
 		if(A)
 			rotation += turnSpeed;
@@ -137,7 +146,7 @@ public class Tank2
 			/*
 		
 			 */
-		double rotationRadians = TankRotation*Math.PI/180; //Jared math. works, which I'm kinda proud of.
+		double rotationRadians = TankRotation*Math.PI/180; //Jared math. works, which I'm kinda proud of. //EDIT: didn't actually work. was inverted :))))
 		Vector2 MovementVector = new Vector2((float)Math.cos(rotationRadians),(float)Math.sin(rotationRadians));
 		TankPos.mulAdd(MovementVector, speed); //muladd multiplies the former arg by the second. in this case the speed is "pixels per second", multiplyed by jared's heading vector.
 		if(TankPos.x > TILE_SIZE*(MAP_SIZE-1)) //alright, I'm blaming jared for the X and Y being inverted. //fixed.
@@ -165,6 +174,11 @@ public class Tank2
 	}
 	
 	
+	public void death()
+	{
+		youDied = true;
+	}
+	
 	public void update()
 	{ //unused! here for when it may or may not ever not maybe potentially used.
 			
@@ -173,10 +187,16 @@ public class Tank2
 	//Draw method. draws both the tank and turret. self explainatory. 
 	public void draw(SpriteBatch spriteBatch)
 		{
+		if(youDied == false)
+		{
 			tankBodySprite.setRotation(TankRotation);
 			tankBodySprite.setPosition(TankPos.x, TankPos.y);
 			tankBodySprite.draw(spriteBatch);
-			
+			return;
+		}
+		else
+			deathSprite.setPosition(TankPos.x, TankPos.y);
+			deathSprite.draw(spriteBatch);
 		//	turretSprite.setRotation(TurretRotation); //we can just not draw it. it's more of a pain than not to rip it out 
 		//	turretSprite.setPosition(TankPos.y,TankPos.x);
 		//	turretSprite.draw(spriteBatch);				
